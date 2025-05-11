@@ -1,0 +1,120 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    margin: 20px;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+.container {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 90vw; /* Approximately 90% of the viewport width */
+    min-width: 400px; /* Minimum width */
+    max-width: 1800px; /* A sensible max-width for very large screens */
+}
+h1 {
+    color: #1c1e21;
+    text-align: center;
+    margin-bottom: 20px;
+}
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: #4b4f56;
+}
+input[type="number"],
+input[type="text"] {
+    width: calc(100% - 24px);
+    padding: 10px;
+    margin-bottom: 18px;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+button {
+    width: 100%;
+    padding: 12px 18px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+button:hover {
+    background-color: #0056b3;
+}
+#pixelCanvas {
+    border: 1px solid #ccd0d5;
+    margin-top: 25px;
+    display: block;
+    max-width: 100%;
+    image-rendering: pixelated; /* Ensures pixels are sharp when scaled */
+    image-rendering: -moz-crisp-edges; /* Firefox */
+    image-rendering: crisp-edges; /* Modern browsers */
+    background-color: #f0f0f0; /* Light background for the canvas itself */
+}
+#downloadLink {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 15px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    text-align: center;
+    transition: background-color 0.2s ease;
+    width: calc(100% - 30px); /* Match button width */
+}
+#downloadLink:hover {
+    background-color: #1e7e34;
+}
+.hidden {
+    display: none;
+}
+/* QR Generator Specific Styles */
+body.qr-page { /* Add a class to body in qr-generator.html for specific targeting */
+    flex-direction: column;
+    align-items: center;
+}
+
+.container.qr-container { /* Add a class for specific QR container styling if needed */
+    margin-top: 20px;
+}
+
+#qrcodeCanvas {
+    display: block;
+    margin: 20px auto;
+    border: 1px solid #dddfe2; /* Reusing border style */
+}
+
+.info {
+    font-size: 0.9em;
+    color: #606770; /* Reusing a muted color */
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Adjust input width for QR page if it was different, otherwise remove if common style is fine */
+/* input[type="text"], input[type="number"] on QR page already uses calc(100% - 22px) vs 24px.
+   If this small difference is intended, keep it in HTML or make a more specific selector.
+   For now, assuming the common input style is mostly acceptable.
+   The existing rule is: width: calc(100% - 24px);
+   The QR HTML had: width: calc(100% - 22px);
+   Let's make it consistent or use a more specific selector if needed.
+   For now, we'll rely on the existing global input style.
+*/
