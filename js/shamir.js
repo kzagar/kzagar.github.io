@@ -1,7 +1,7 @@
 // js/shamir.js
 const Shamir = (() => {
     const PRIME = 257; // Smallest prime > 255 (for byte-wise operations)
-    const CHARSET = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // 35 characters
+    const CHARSET = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"; // 35 characters
     const CHARSET_LOOKUP = {};
     for (let i = 0; i < CHARSET.length; i++) {
         CHARSET_LOOKUP[CHARSET[i]] = i;
