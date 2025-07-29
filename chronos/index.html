@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos Task Timer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <h1>Task Timer</h1>
+    <table id="task-table">
+        <thead>
+            <tr>
+                <th></th> <!-- For drag handle -->
+                <th>Task</th>
+                <th>Time</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr id="new-task-row">
+                <td colspan="4" contenteditable="true" class="new-task-input" data-placeholder="Click here to add new task..."></td>
+            </tr>
+            <!-- Existing tasks will be inserted here by JavaScript -->
+        </tbody>
+    </table>
+
+    <template id="task-row-template">
+        <tr draggable="true">
+            <td class="drag-handle">☰</td>
+            <td class="task-name"></td>
+            <td class="task-time"></td>
+            <td>
+                <button class="start-pause-btn"></button>
+                <button class="journal-btn">📝</button>
+                <button class="delete-btn">🗑️</button>
+            </td>
+        </tr>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+</html>

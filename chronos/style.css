@@ -1,0 +1,74 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap; /* Prevent wrapping in fixed columns */
+}
+
+.task-time {
+    font-family: 'Roboto Mono', 'Courier New', Courier, monospace; /* Digits-like font */
+    text-align: right; /* Align time to the right */
+}
+
+#task-table th:nth-child(1),
+#task-table td:nth-child(1) {
+    width: 30px; /* Fixed width for drag handle */
+    cursor: grab;
+}
+
+#task-table th:nth-child(2),
+#task-table td:nth-child(2) {
+    width: auto; /* Task column takes remaining width */
+}
+
+#task-table th:nth-child(3),
+#task-table td:nth-child(3) {
+    width: 80px; /* Fixed width for Time column */
+}
+
+#task-table th:nth-child(4),
+#task-table td:nth-child(4) {
+    width: 120px; /* Fixed width for Actions column */
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    background: none;
+    font-size: 1.2em;
+}
+
+.new-task-input {
+    text-align: center;
+    color: #aaa; /* Grayed out */
+    font-style: italic;
+}
+
+.new-task-input:focus {
+    color: initial; /* Restore color on focus */
+    font-style: normal;
+}
+
+/* Hide placeholder when content is present */
+.new-task-input:not(:empty)::before {
+    content: none;
+}
+
+/* Show placeholder when content is empty */
+.new-task-input:empty::before {
+    content: attr(data-placeholder);
+}
