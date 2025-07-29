@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let nextTaskId = 1; // Start ID from 1
     let taskOrder = [];
 
+    let journals = []; // New array to store journal entries
+    let currentJournalTaskId = null; // To store the task ID for the current journal entry
+    let tasksWithVisibleJournals = []; // New array to store task IDs whose journals are visible
+
     let draggedItem = null;
 
     // Helper function to format time
@@ -30,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const savedTasks = localStorage.getItem('chronosTasks');
         const savedTaskOrder = localStorage.getItem('chronosTaskOrder');
         const savedRunningTaskId = localStorage.getItem('chronosRunningTaskId');
+        const savedJournals = localStorage.getItem('chronosJournals');
+        const savedTasksWithVisibleJournals = localStorage.getItem('chronosTasksWithVisibleJournals');
 
         if (savedTasks) {
             tasks = JSON.parse(savedTasks);
@@ -69,6 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentlyRunningTaskId = -1; // Task not found, reset
             }
         }
+
+        if (savedJournals) {
+            journals = JSON.parse(savedJournals);
+        }
+
+        if (savedTasksWithVisibleJournals) {
+            tasksWithVisibleJournals = JSON.parse(savedTasksWithVisibleJournals);
+        }
     }
 
     // Save tasks to localStorage
@@ -76,6 +90,17 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('chronosTasks', JSON.stringify(tasks));
         localStorage.setItem('chronosTaskOrder', JSON.stringify(taskOrder));
         localStorage.setItem('chronosRunningTaskId', currentlyRunningTaskId.toString());
+        saveJournals(); // Also save journals when tasks are saved
+        saveTasksWithVisibleJournals();
+    }
+
+    function saveTasksWithVisibleJournals() {
+        localStorage.setItem('chronosTasksWithVisibleJournals', JSON.stringify(tasksWithVisibleJournals));
+    }
+
+    // Save journals to localStorage
+    function saveJournals() {
+        localStorage.setItem('chronosJournals', JSON.stringify(journals));
     }
 
     function renderTasks() {
@@ -109,6 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const startPauseBtn = templateClone.querySelector('.start-pause-btn');
             startPauseBtn.textContent = (task.id === currentlyRunningTaskId) ? '❚❚' : '▶';
+
+            const showJournalCheckbox = templateClone.querySelector('.show-journal-checkbox');
+            showJournalCheckbox.checked = tasksWithVisibleJournals.includes(task.id);
+            showJournalCheckbox.dataset.taskId = task.id;
 
             taskTableBody.insertBefore(templateClone, newTaskRowElement.nextSibling);
         }
@@ -180,8 +209,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentlyRunningTaskId === taskId) {
                 currentlyRunningTaskId = -1;
             }
+            // Also remove from tasksWithVisibleJournals if deleted task was there
+            tasksWithVisibleJournals = tasksWithVisibleJournals.filter(id => id !== taskId);
             saveTasks();
             renderTasks();
+            renderJournalEntries(); // Re-render journals after task deletion
         }
     }
 
@@ -195,9 +227,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('start-pause-btn')) {
             toggleTimer(taskId);
         } else if (target.classList.contains('journal-btn')) {
-            alert(`Journal for task ${taskId}`);
+            currentJournalTaskId = taskId; // Set the task ID for the journal
+            showJournalDialog();
         } else if (target.classList.contains('delete-btn')) {
             deleteTask(taskId);
+        } else if (target.classList.contains('show-journal-checkbox')) {
+            if (target.checked) {
+                if (!tasksWithVisibleJournals.includes(taskId)) {
+                    tasksWithVisibleJournals.push(taskId);
+                }
+            } else {
+                tasksWithVisibleJournals = tasksWithVisibleJournals.filter(id => id !== taskId);
+            }
+            saveTasksWithVisibleJournals();
+            renderJournalEntries();
         }
     });
 
@@ -309,7 +352,114 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Journal Dialog Elements
+    const journalDialog = document.getElementById('journal-dialog');
+    const journalInput = document.getElementById('journal-input');
+    const addJournalBtn = document.getElementById('add-journal-btn');
+    const discardJournalBtn = document.getElementById('discard-journal-btn');
+
+    function showJournalDialog() {
+        journalDialog.style.display = 'flex';
+        journalInput.value = ''; // Clear previous input
+        journalInput.focus();
+    }
+
+    function hideJournalDialog() {
+        journalDialog.style.display = 'none';
+        journalInput.value = '';
+        currentJournalTaskId = null; // Clear the current task ID
+    }
+
+    function addJournalEntry() {
+        const content = journalInput.value.trim();
+        if (content === '') {
+            alert('Journal entry cannot be empty.');
+            return;
+        }
+
+        if (currentJournalTaskId === null) {
+            alert('No task selected for journal entry.');
+            return;
+        }
+
+        const now = new Date();
+        const newJournal = {
+            taskId: currentJournalTaskId,
+            time: now.toISOString(), // ISO 8601 format
+            content: content
+        };
+
+        journals.push(newJournal);
+        saveJournals();
+        hideJournalDialog();
+        console.log('Journal Entries:', journals); // For debugging
+        renderJournalEntries(); // Re-render journal entries after adding a new one
+    }
+
+    // Event Listeners for Journal Dialog
+    addJournalBtn.addEventListener('click', addJournalEntry);
+    discardJournalBtn.addEventListener('click', hideJournalDialog);
+
+    // Keyboard shortcuts for journal dialog
+    journalDialog.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hideJournalDialog();
+        } else if (e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault(); // Prevent new line in textarea
+            addJournalEntry();
+        }
+    });
+
+    // Helper function to format journal time
+    function formatJournalTime(isoString) {
+        const date = new Date(isoString);
+        const options = { weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return date.toLocaleString('en-US', options);
+    }
+
+    // Render Journal Entries
+    function renderJournalEntries() {
+        const journalEntriesTableBody = document.querySelector('#journal-entries-table tbody');
+        const journalEntryTemplate = document.querySelector('#journal-entry-template');
+        const journalEntriesContainer = document.getElementById('journal-entries-container');
+        const mainContainer = document.querySelector('.main-container'); // Get main-container
+
+        // Clear existing entries
+        journalEntriesTableBody.innerHTML = '';
+
+        const tasksToShowJournal = tasks.filter(task => tasksWithVisibleJournals.includes(task.id));
+
+        if (tasksToShowJournal.length > 0) {
+            mainContainer.classList.add('show-journals'); // Add class to main-container
+            
+            tasksToShowJournal.forEach(task => {
+                const taskJournals = journals.filter(journal => journal.taskId === task.id);
+                if (taskJournals.length > 0) {
+                    // Add a header for the task
+                    const taskHeaderRow = document.createElement('tr');
+                    const taskHeaderCell = document.createElement('td');
+                    taskHeaderCell.colSpan = 2;
+                    taskHeaderCell.innerHTML = `<strong>Task: ${task.name}</strong>`;
+                    journalEntriesTableBody.appendChild(taskHeaderRow);
+                    taskHeaderRow.appendChild(taskHeaderCell);
+
+                    taskJournals.sort((a, b) => new Date(a.time) - new Date(b.time)); // Sort by time
+
+                    taskJournals.forEach(journal => {
+                        const templateClone = journalEntryTemplate.content.cloneNode(true);
+                        templateClone.querySelector('.journal-time').textContent = formatJournalTime(journal.time);
+                        templateClone.querySelector('.journal-content').textContent = journal.content;
+                        journalEntriesTableBody.appendChild(templateClone);
+                    });
+                }
+            });
+        } else {
+            mainContainer.classList.remove('show-journals'); // Remove class from main-container
+        }
+    }
+
     // Initial load
     loadTasks();
     renderTasks();
+    renderJournalEntries(); // Initial render of journal entries
 });
