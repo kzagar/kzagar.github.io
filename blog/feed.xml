@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://kzagar.github.io/blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kzagar.github.io/blog/" rel="alternate" type="text/html" hreflang="en" /><updated>2026-02-21T02:20:24+00:00</updated><id>https://kzagar.github.io/blog/feed.xml</id><title type="html">Klemen’s Web Corner</title><entry><title type="html">Minimizing LaTeX Docker Image with strace and ldd</title><link href="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html" rel="alternate" type="text/html" title="Minimizing LaTeX Docker Image with strace and ldd" /><published>2026-02-21T01:15:00+00:00</published><updated>2026-02-21T01:15:00+00:00</updated><id>https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image</id><content type="html" xml:base="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html"><![CDATA[<p>When building automated systems that generate PDFs from LaTeX templates, one often runs into the “huge image” problem. A full TeX Live installation can easily exceed 5GB, and even a “recommended” set of packages often lands around 2-3GB.</p>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://kzagar.github.io/blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kzagar.github.io/blog/" rel="alternate" type="text/html" hreflang="en" /><updated>2026-02-21T02:24:56+00:00</updated><id>https://kzagar.github.io/blog/feed.xml</id><title type="html">Klemen’s Web Corner</title><entry><title type="html">Minimizing LaTeX Docker Image with strace and ldd</title><link href="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html" rel="alternate" type="text/html" title="Minimizing LaTeX Docker Image with strace and ldd" /><published>2026-02-21T01:15:00+00:00</published><updated>2026-02-21T01:15:00+00:00</updated><id>https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image</id><content type="html" xml:base="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html"><![CDATA[<p>When building automated systems that generate PDFs from LaTeX templates, one often runs into the “huge image” problem. A full TeX Live installation can easily exceed 5GB, and even a “recommended” set of packages often lands around 2-3GB.</p>
 
 <p>In this post, I’ll document how I managed to shrink a LaTeX Docker image from <strong>2.65GB</strong> down to just <strong>33.6MB</strong>—a reduction of over 98%.</p>
 
@@ -55,7 +55,7 @@ done</span> &lt; raw_paths.txt
 
 <p>The <code class="language-plaintext highlighter-rouge">Dockerfile</code> leverages the builder stage to generate the list of needed files and then copies them to a clean <code class="language-plaintext highlighter-rouge">alpine</code> base.</p>
 
-<div class="language-dockerfile highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Stage 1: Builder</span>
+<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Stage 1: Builder</span>
 <span class="k">FROM</span><span class="w"> </span><span class="s">alpine:latest</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
 <span class="k">RUN </span>apk add <span class="nt">--no-cache</span> texlive texmf-dist-latexextra texmf-dist-fontsextra texmf-dist-fontsrecommended strace
 <span class="k">WORKDIR</span><span class="s"> /work</span>
@@ -66,18 +66,18 @@ done</span> &lt; raw_paths.txt
 <span class="k">RUN </span>/bin/sh /work/analyze_deps.sh pdflatex /work/input.tex
 
 <span class="c"># Prepare the minimal filesystem</span>
-<span class="k">RUN </span><span class="nb">mkdir</span> /dist <span class="o">&amp;&amp;</span> 
-    while read p; do 
-        if [ -e "$p" ]; then 
-            cp --parents "$p" /dist/ ; 
-            target=$(readlink -f "$p") ; 
-            [ "$target" != "$p" ] &amp;&amp; cp --parents "$target" /dist/ ; 
-        fi ; 
-    done &lt; /work/needed_files.txt &amp;&amp; 
-    cp --parents /bin/sh /dist/ &amp;&amp; 
-    cp --parents /lib/ld-musl-x86_64.so.1 /dist/
+<span class="k">RUN </span><span class="nb">mkdir</span> /dist <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="k">while </span><span class="nb">read </span>p<span class="p">;</span> <span class="k">do</span> <span class="se">\
+</span>        <span class="k">if</span> <span class="o">[</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span> <span class="se">\
+</span>            <span class="nb">cp</span> <span class="nt">--parents</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> /dist/ <span class="p">;</span> <span class="se">\
+</span>            <span class="nv">target</span><span class="o">=</span><span class="si">$(</span><span class="nb">readlink</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span><span class="si">)</span> <span class="p">;</span> <span class="se">\
+</span>            <span class="o">[</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">cp</span> <span class="nt">--parents</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> /dist/ <span class="p">;</span> <span class="se">\
+</span>        <span class="k">fi</span> <span class="p">;</span> <span class="se">\
+</span>    <span class="k">done</span> &lt; /work/needed_files.txt <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">cp</span> <span class="nt">--parents</span> /bin/sh /dist/ <span class="o">&amp;&amp;</span> <span class="se">\
+</span>    <span class="nb">cp</span> <span class="nt">--parents</span> /lib/ld-musl-x86_64.so.1 /dist/
 
-# Stage 2: Final minimal image
+<span class="c"># Stage 2: Final minimal image</span>
 <span class="k">FROM</span><span class="s"> alpine:latest</span>
 <span class="k">COPY</span><span class="s"> --from=builder /dist /</span>
 <span class="k">WORKDIR</span><span class="s"> /work</span>
