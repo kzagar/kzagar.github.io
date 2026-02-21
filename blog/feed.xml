@@ -1,95 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en"><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="https://kzagar.github.io/blog/feed.xml" rel="self" type="application/atom+xml" /><link href="https://kzagar.github.io/blog/" rel="alternate" type="text/html" hreflang="en" /><updated>2026-02-21T02:32:45+00:00</updated><id>https://kzagar.github.io/blog/feed.xml</id><title type="html">Klemen’s Web Corner</title><entry><title type="html">Minimizing LaTeX Docker Image with strace and ldd</title><link href="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html" rel="alternate" type="text/html" title="Minimizing LaTeX Docker Image with strace and ldd" /><published>2026-02-21T01:15:00+00:00</published><updated>2026-02-21T01:15:00+00:00</updated><id>https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image</id><content type="html" xml:base="https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html"><![CDATA[<p>When building automated systems that generate PDFs from LaTeX templates, one often runs into the “huge image” problem. A full TeX Live installation can easily exceed 5GB, and even a “recommended” set of packages often lands around 2-3GB.</p>
 
-<p>In this post, I’ll document how I managed to shrink a LaTeX Docker image from <strong>2.65GB</strong> down to just <strong>33.6MB</strong>—a reduction of over 98%.</p>
 
-<h2 id="the-challenge">The Challenge</h2>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>/blog/</id>
+  <title>Klemen's Web Corner</title>
+  <subtitle>A minimal, responsive and feature-rich Jekyll theme for technical writing.</subtitle>
+  <updated>2026-02-21T10:17:08+00:00</updated>
+  <author>
+    <name>Klemen Žagar</name>
+    <uri>/blog/</uri>
+  </author>
+  <link rel="self" type="application/atom+xml" href="/blog/feed.xml"/>
+  <link rel="alternate" type="text/html" hreflang="en"
+    href="/blog/"/>
+  <generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator>
+  <rights> © 2026 Klemen Žagar </rights>
+  <icon>blog/assets/img/favicons/favicon.ico</icon>
+  <logo>blog/assets/img/favicons/favicon-96x96.png</logo>
 
-<p>The goal was to create a lightweight image for an OpenWRT router that can compile a specific invoice template. The template uses several packages like <code class="language-plaintext highlighter-rouge">geometry</code>, <code class="language-plaintext highlighter-rouge">opensans</code>, <code class="language-plaintext highlighter-rouge">eurosym</code>, <code class="language-plaintext highlighter-rouge">tikz</code>, and <code class="language-plaintext highlighter-rouge">hyperref</code>.</p>
 
-<h2 id="the-strategy-dynamic-dependency-analysis">The Strategy: Dynamic Dependency Analysis</h2>
+  
+  <entry>
+    <title>Minimizing LaTeX Docker Image with strace and ldd</title>
+    <link href="/blog/posts/minimizing-latex-docker-image/" rel="alternate" type="text/html" title="Minimizing LaTeX Docker Image with strace and ldd" />
+    <published>2026-02-21T01:15:00+00:00</published>
+  
+    <updated>2026-02-21T01:15:00+00:00</updated>
+  
+    <id>/blog/posts/minimizing-latex-docker-image/</id>
+    <content type="text/html" src="/blog/posts/minimizing-latex-docker-image/" />
+    <author>
+      <name>Klemen Žagar</name>
+    </author>
 
-<p>Instead of guessing which LaTeX packages are needed, we use a more scientific approach:</p>
-<ol>
-  <li>Build a full “builder” image with all potential dependencies.</li>
-  <li>Run the actual compilation workload under <code class="language-plaintext highlighter-rouge">strace</code>.</li>
-  <li>Capture every file the process successfully accesses.</li>
-  <li>Resolve library dependencies using <code class="language-plaintext highlighter-rouge">ldd</code>.</li>
-  <li>Create a “minimal” final image containing <em>only</em> those files.</li>
-</ol>
+  
+    
+  
 
-<h2 id="step-1-the-builder-and-the-analysis-script">Step 1: The Builder and the Analysis Script</h2>
+  <summary>When building automated systems that generate PDFs from LaTeX templates, one often runs into the “huge image” problem. A full TeX Live installation can easily exceed 5GB, and even a “recommended” set of packages often lands around 2-3GB.  In this post, I’ll document how I managed to shrink a LaTeX Docker image from 2.65GB down to just 33.6MB—a reduction of over 98%.  The Challenge  The goal was...</summary>
 
-<p>I created a shell script <code class="language-plaintext highlighter-rouge">analyze_deps.sh</code> that automates the discovery:</p>
+  </entry>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
-<span class="c"># Runs a command and finds all file/library dependencies.</span>
+</feed>
 
-<span class="nv">LOG_FILE</span><span class="o">=</span><span class="s2">"trace.log"</span>
-<span class="nv">OUT_FILE</span><span class="o">=</span><span class="s2">"needed_files.txt"</span>
-<span class="nv">CMD</span><span class="o">=</span><span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
 
-<span class="nb">echo</span> <span class="s2">"Step 1: Running workload under strace..."</span>
-strace <span class="nt">-f</span> <span class="nt">-e</span> <span class="nv">trace</span><span class="o">=</span>openat,stat,lstat,access <span class="nt">-o</span> <span class="s2">"</span><span class="nv">$LOG_FILE</span><span class="s2">"</span> <span class="nv">$CMD</span>
-
-<span class="nb">echo</span> <span class="s2">"Step 2: Extracting paths from strace log..."</span>
-<span class="nb">grep</span> <span class="nt">-v</span> <span class="s2">"ENOENT"</span> <span class="s2">"</span><span class="nv">$LOG_FILE</span><span class="s2">"</span> | <span class="nb">grep</span> <span class="nt">-oE</span> <span class="s1">'"/[^"]+"'</span> | <span class="nb">sed</span> <span class="s1">'s/"//g'</span> | <span class="nb">sort</span> | <span class="nb">uniq</span> <span class="o">&gt;</span> raw_paths.txt
-
-<span class="nb">echo</span> <span class="s2">"Step 3: Resolving symlinks and library dependencies..."</span>
-<span class="nb">touch </span>deps_all.txt
-<span class="k">while </span><span class="nb">read</span> <span class="nt">-r</span> p<span class="p">;</span> <span class="k">do
-    if</span> <span class="o">[</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then
-        </span><span class="nb">echo</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">&gt;&gt;</span> deps_all.txt
-        <span class="nv">target</span><span class="o">=</span><span class="si">$(</span><span class="nb">readlink</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span><span class="si">)</span>
-        <span class="o">[</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">echo</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> <span class="o">&gt;&gt;</span> deps_all.txt
-        <span class="k">if </span>ldd <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">&gt;</span> /dev/null 2&gt;&amp;1<span class="p">;</span> <span class="k">then
-            </span>ldd <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> | <span class="nb">awk</span> <span class="s1">'{for(i=1;i&lt;=NF;i++) if($i ~ /^\//) print $i}'</span> <span class="o">&gt;&gt;</span> deps_all.txt
-        <span class="k">fi
-    fi
-done</span> &lt; raw_paths.txt
-
-<span class="nb">echo</span> <span class="s2">"Step 4: Finalizing list..."</span>
-<span class="nb">sort </span>deps_all.txt | <span class="nb">uniq</span> | <span class="nb">grep</span> <span class="nt">-vE</span> <span class="s2">"^(/proc|/dev|/sys|/tmp|/work|/etc/passwd|/etc/group)"</span> <span class="o">&gt;</span> <span class="s2">"</span><span class="nv">$OUT_FILE</span><span class="s2">"</span>
-</code></pre></div></div>
-
-<h2 id="step-2-multi-stage-dockerfile">Step 2: Multi-stage Dockerfile</h2>
-
-<p>The <code class="language-plaintext highlighter-rouge">Dockerfile</code> leverages the builder stage to generate the list of needed files and then copies them to a clean <code class="language-plaintext highlighter-rouge">alpine</code> base.</p>
-
-<div class="language-docker highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Stage 1: Builder</span>
-<span class="k">FROM</span><span class="w"> </span><span class="s">alpine:latest</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
-<span class="k">RUN </span>apk add <span class="nt">--no-cache</span> texlive texmf-dist-latexextra texmf-dist-fontsextra texmf-dist-fontsrecommended strace
-<span class="k">WORKDIR</span><span class="s"> /work</span>
-<span class="k">COPY</span><span class="s"> analyze_deps.sh /work/analyze_deps.sh</span>
-<span class="k">COPY</span><span class="s"> input.tex /work/input.tex</span>
-
-<span class="c"># Generate the list of needed files</span>
-<span class="k">RUN </span>/bin/sh /work/analyze_deps.sh pdflatex /work/input.tex
-
-<span class="c"># Prepare the minimal filesystem</span>
-<span class="k">RUN </span><span class="nb">mkdir</span> /dist <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="k">while </span><span class="nb">read </span>p<span class="p">;</span> <span class="k">do</span> <span class="se">\
-</span>        <span class="k">if</span> <span class="o">[</span> <span class="nt">-e</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span><span class="p">;</span> <span class="k">then</span> <span class="se">\
-</span>            <span class="nb">cp</span> <span class="nt">--parents</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> /dist/ <span class="p">;</span> <span class="se">\
-</span>            <span class="nv">target</span><span class="o">=</span><span class="si">$(</span><span class="nb">readlink</span> <span class="nt">-f</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span><span class="si">)</span> <span class="p">;</span> <span class="se">\
-</span>            <span class="o">[</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> <span class="o">!=</span> <span class="s2">"</span><span class="nv">$p</span><span class="s2">"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="nb">cp</span> <span class="nt">--parents</span> <span class="s2">"</span><span class="nv">$target</span><span class="s2">"</span> /dist/ <span class="p">;</span> <span class="se">\
-</span>        <span class="k">fi</span> <span class="p">;</span> <span class="se">\
-</span>    <span class="k">done</span> &lt; /work/needed_files.txt <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="nb">cp</span> <span class="nt">--parents</span> /bin/sh /dist/ <span class="o">&amp;&amp;</span> <span class="se">\
-</span>    <span class="nb">cp</span> <span class="nt">--parents</span> /lib/ld-musl-x86_64.so.1 /dist/
-
-<span class="c"># Stage 2: Final minimal image</span>
-<span class="k">FROM</span><span class="s"> alpine:latest</span>
-<span class="k">COPY</span><span class="s"> --from=builder /dist /</span>
-<span class="k">WORKDIR</span><span class="s"> /work</span>
-<span class="k">ENTRYPOINT</span><span class="s"> ["pdflatex"]</span>
-</code></pre></div></div>
-
-<h2 id="results">Results</h2>
-
-<p>The difference is staggering:</p>
-<ul>
-  <li><strong>Original Image:</strong> 2.65GB</li>
-  <li><strong>Minimal Image:</strong> 33.6MB</li>
-</ul>
-
-<p>The final image contains only the <code class="language-plaintext highlighter-rouge">pdflatex</code> binary, its required shared libraries, the specific <code class="language-plaintext highlighter-rouge">.fmt</code> files, and just the font and style files actually used by the template. This makes it perfect for deployment on resource-constrained devices like routers or as a fast-loading part of a CI/CD pipeline.</p>]]></content><author><name></name></author><category term="docker" /><category term="latex" /><summary type="html"><![CDATA[When building automated systems that generate PDFs from LaTeX templates, one often runs into the “huge image” problem. A full TeX Live installation can easily exceed 5GB, and even a “recommended” set of packages often lands around 2-3GB.]]></summary></entry></feed>

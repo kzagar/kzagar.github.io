@@ -1,19 +1,32 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html</loc>
+<loc>/blog/posts/minimizing-latex-docker-image/</loc>
 <lastmod>2026-02-21T01:15:00+00:00</lastmod>
 </url>
 <url>
-<loc>https://kzagar.github.io/blog/about/</loc>
+<loc>/blog/categories/</loc>
+<lastmod>2026-02-21T10:17:08+00:00</lastmod>
 </url>
 <url>
-<loc>https://kzagar.github.io/blog/</loc>
+<loc>/blog/tags/</loc>
+<lastmod>2026-02-21T10:17:08+00:00</lastmod>
 </url>
 <url>
-<loc>https://kzagar.github.io/blog/categories/docker/</loc>
+<loc>/blog/archives/</loc>
+<lastmod>2026-02-21T10:17:08+00:00</lastmod>
 </url>
 <url>
-<loc>https://kzagar.github.io/blog/categories/latex/</loc>
+<loc>/blog/about/</loc>
+<lastmod>2026-02-21T10:17:08+00:00</lastmod>
+</url>
+<url>
+<loc>/blog/</loc>
+</url>
+<url>
+<loc>/blog/tags/docker/</loc>
+</url>
+<url>
+<loc>/blog/tags/latex/</loc>
 </url>
 </urlset>
