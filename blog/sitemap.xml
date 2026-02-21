@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://kzagar.github.io/blog/jekyll/update/2026/02/21/welcome-to-jekyll.html</loc>
+<lastmod>2026-02-21T01:11:36+00:00</lastmod>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/docker/latex/2026/02/21/minimizing-latex-docker-image.html</loc>
+<lastmod>2026-02-21T01:15:00+00:00</lastmod>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/about/</loc>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/</loc>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/categories/jekyll/</loc>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/categories/update/</loc>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/categories/docker/</loc>
+</url>
+<url>
+<loc>https://kzagar.github.io/blog/categories/latex/</loc>
+</url>
+</urlset>
