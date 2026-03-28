@@ -7,6 +7,9 @@ const statusIndicator = document.getElementById('status-indicator');
 const welcomeMsg = document.getElementById('welcome-msg');
 const measurementsDiv = document.getElementById('measurements');
 
+// --- Drawing ---
+let isDrawing = false;
+
 measurementsDiv.classList.add('hidden');
 
 let state = {
@@ -35,33 +38,59 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// --- Clipboard API ---
+// --- Clipboard & Image Loading ---
+function handleImageBlob(blob) {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+        if (state.image && state.image.src) {
+            URL.revokeObjectURL(state.image.src); // Free up previous blob URL memory
+        }
+        state.image = img;
+        // Center image initially
+        state.transform.zoom = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.9;
+        state.transform.x = (canvas.width - img.width * state.transform.zoom) / 2;
+        state.transform.y = (canvas.height - img.height * state.transform.zoom) / 2;
+
+        statusIndicator.innerText = `Image: ${img.width}x${img.height}px`;
+        welcomeMsg.classList.add('hidden');
+        requestDraw();
+    };
+    img.src = url;
+}
+
 window.addEventListener('paste', (e) => {
     const items = (e.clipboardData || e.originalEvent.clipboardData).items;
     for (const item of items) {
         if (item.type.indexOf('image') !== -1) {
-            const blob = item.getAsFile();
-            const url = URL.createObjectURL(blob);
-            const img = new Image();
-            img.onload = () => {
-                if (state.image && state.image.src) {
-                    URL.revokeObjectURL(state.image.src); // Free up previous blob URL memory
-                }
-                state.image = img;
-                // Center image initially
-                state.transform.zoom = Math.min(canvas.width / img.width, canvas.height / img.height) * 0.9;
-                state.transform.x = (canvas.width - img.width * state.transform.zoom) / 2;
-                state.transform.y = (canvas.height - img.height * state.transform.zoom) / 2;
-
-                statusIndicator.innerText = `Image: ${img.width}x${img.height}px`;
-                welcomeMsg.classList.add('hidden');
-                requestDraw();
-            };
-            img.src = url;
+            handleImageBlob(item.getAsFile());
             break;
         }
     }
 });
+
+const pasteBtn = document.getElementById('paste-btn');
+if (pasteBtn) {
+    pasteBtn.addEventListener('click', async () => {
+        try {
+            const clipboardItems = await navigator.clipboard.read();
+            for (const item of clipboardItems) {
+                for (const type of item.types) {
+                    if (type.startsWith('image/')) {
+                        const blob = await item.getType(type);
+                        handleImageBlob(blob);
+                        return;
+                    }
+                }
+            }
+            alert("No image found in clipboard. Try copying an image first.");
+        } catch (err) {
+            console.error("Clipboard read failed:", err);
+            alert("Could not access clipboard directly. Please use Ctrl+V to paste.");
+        }
+    });
+}
 
 // --- Coordinate Conversion ---
 /**
@@ -90,14 +119,13 @@ function imageToScreen(imageX, imageY) {
     };
 }
 
-// --- Drawing ---
-let isDrawing = false;
 /**
  * Queues a rendering pass synced with the browser's display refresh rate to avoid jank.
  */
 function requestDraw() {
     if (!isDrawing) {
         isDrawing = true;
+
         requestAnimationFrame(() => {
             draw();
             isDrawing = false;

@@ -295,6 +295,30 @@ body.measurer-page {
     color: #94a3b8; /* var(--text-secondary) */
 }
 
+.measurer-page .primary-btn {
+    background: #38bdf8;
+    color: #0f172a;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    pointer-events: auto;
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.measurer-page .primary-btn:hover {
+    background: #7dd3fc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.measurer-page .primary-btn:active {
+    transform: translateY(0);
+}
+
 .measurer-page .controls-list {
     font-size: 0.75rem;
     line-height: 1.6;
