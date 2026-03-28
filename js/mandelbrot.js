@@ -277,10 +277,11 @@ function resize() {
  */
 function updateTransform(dx, dy, factor, mouseX, mouseY) {
     const aspect = window.innerWidth / window.innerHeight;
-    const spanY = 2.5 / state.transform.zoom;
-    const spanX = spanY * aspect;
 
     if (factor !== 1) { // Zooming
+        const spanY = 2.5 / state.transform.zoom;
+        const spanX = spanY * aspect;
+
         const mouseXNorm = mouseX / window.innerWidth - 0.5;
         const mouseYNorm = mouseY / window.innerHeight - 0.5;
 
@@ -297,10 +298,15 @@ function updateTransform(dx, dy, factor, mouseX, mouseY) {
 
         state.transform.x += (beforeX - afterX);
         state.transform.y += (beforeY - afterY);
-    } else { // Panning
+    }
+
+    if (dx !== 0 || dy !== 0) { // Panning
+        const spanY = 2.5 / state.transform.zoom;
+        const spanX = spanY * aspect;
         state.transform.x -= (dx / window.innerWidth) * spanX;
         state.transform.y -= (dy / window.innerHeight) * spanY;
     }
+
     requestRender();
 }
 
@@ -324,6 +330,53 @@ window.addEventListener('wheel', (e) => {
     e.preventDefault();
     const factor = Math.pow(1.1, -e.deltaY / 100);
     updateTransform(0, 0, factor, e.clientX, e.clientY);
+}, { passive: false });
+
+let lastTouches = [];
+
+canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    lastTouches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    const touches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+
+    if (touches.length === 1 && lastTouches.length === 1) {
+        // Single-finger panning
+        const dx = touches[0].x - lastTouches[0].x;
+        const dy = touches[0].y - lastTouches[0].y;
+        updateTransform(dx, dy, 1);
+    } else if (touches.length >= 2 && lastTouches.length >= 2) {
+        // Two-finger pinch-to-zoom and panning
+        const getDist = (t1, t2) => Math.hypot(t1.x - t2.x, t1.y - t2.y);
+        const getMid = (t1, t2) => ({ x: (t1.x + t2.x) / 2, y: (t1.y + t2.y) / 2 });
+
+        const lastDist = getDist(lastTouches[0], lastTouches[1]);
+        const currentDist = getDist(touches[0], touches[1]);
+
+        const lastMid = getMid(lastTouches[0], lastTouches[1]);
+        const currentMid = getMid(touches[0], touches[1]);
+
+        const factor = lastDist > 0 ? currentDist / lastDist : 1;
+        const dx = currentMid.x - lastMid.x;
+        const dy = currentMid.y - lastMid.y;
+
+        updateTransform(dx, dy, factor, currentMid.x, currentMid.y);
+    }
+
+    lastTouches = touches;
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    lastTouches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', (e) => {
+    e.preventDefault();
+    lastTouches = [];
 }, { passive: false });
 
 let isAnimating = false;
