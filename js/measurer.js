@@ -22,6 +22,7 @@ let state = {
         zoom: 1
     },
     measuring: true, // Always show distance from some point if image exists
+    isLocked: false,
     panning: false,
     startPoint: null, // {x, y} in image coordinates
     currentPoint: null, // {x, y} in image coordinates
@@ -209,12 +210,18 @@ canvas.addEventListener('mousedown', (e) => {
         state.panning = true;
         state.lastPanPos = { x: e.clientX, y: e.clientY };
     } else {
-        // Click for new starting point
-        state.startPoint = screenToImage(e.clientX, e.clientY);
-        state.currentPoint = state.startPoint;
-        welcomeMsg.classList.add('hidden');
-        measurementsDiv.classList.remove('hidden');
-        updateMeasurements();
+        if (state.startPoint && !state.isLocked) {
+            // Lock measurement
+            state.isLocked = true;
+        } else {
+            // Click for new starting point
+            state.startPoint = screenToImage(e.clientX, e.clientY);
+            state.currentPoint = state.startPoint;
+            state.isLocked = false;
+            welcomeMsg.classList.add('hidden');
+            measurementsDiv.classList.remove('hidden');
+            updateMeasurements();
+        }
         requestDraw();
     }
 });
@@ -225,8 +232,8 @@ window.addEventListener('mousemove', (e) => {
         const dy = e.clientY - state.lastPanPos.y;
         updateTransform(dx, dy, 1);
         state.lastPanPos = { x: e.clientX, y: e.clientY };
-    } else {
-        // Always update current point if not panning
+    } else if (!state.isLocked) {
+        // Always update current point if not panning and not locked
         state.currentPoint = screenToImage(e.clientX, e.clientY);
         if (state.startPoint) {
             measurementsDiv.classList.remove('hidden');
@@ -256,12 +263,18 @@ canvas.addEventListener('touchstart', (e) => {
     const touches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
 
     if (touches.length === 1) {
-        // Single-finger: Start measurement
-        state.startPoint = screenToImage(touches[0].x, touches[0].y);
-        state.currentPoint = state.startPoint;
-        welcomeMsg.classList.add('hidden');
-        measurementsDiv.classList.remove('hidden');
-        updateMeasurements();
+        if (state.startPoint && !state.isLocked) {
+            // Lock measurement
+            state.isLocked = true;
+        } else {
+            // Single-finger: Start measurement
+            state.startPoint = screenToImage(touches[0].x, touches[0].y);
+            state.currentPoint = state.startPoint;
+            state.isLocked = false;
+            welcomeMsg.classList.add('hidden');
+            measurementsDiv.classList.remove('hidden');
+            updateMeasurements();
+        }
         requestDraw();
     }
     lastTouches = touches;
@@ -273,13 +286,15 @@ canvas.addEventListener('touchmove', (e) => {
     const touches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
 
     if (touches.length === 1 && lastTouches.length === 1) {
-        // Single-finger: update current point for measurement
-        state.currentPoint = screenToImage(touches[0].x, touches[0].y);
-        if (state.startPoint) {
-            measurementsDiv.classList.remove('hidden');
-            updateMeasurements();
+        if (!state.isLocked) {
+            // Single-finger: update current point for measurement
+            state.currentPoint = screenToImage(touches[0].x, touches[0].y);
+            if (state.startPoint) {
+                measurementsDiv.classList.remove('hidden');
+                updateMeasurements();
+            }
+            requestDraw();
         }
-        requestDraw();
     } else if (touches.length >= 2 && lastTouches.length >= 2) {
         // Two-finger pinch-to-zoom and panning
         const getDist = (t1, t2) => Math.hypot(t1.x - t2.x, t1.y - t2.y);
@@ -322,10 +337,9 @@ function updateMeasurements() {
 
     // Angle from positive X axis
     // Math.atan2 returns angle in radians from (-PI, PI]
-    // We want 0-360 starting from right
-    let angleRad = Math.atan2(dy, dx);
+    // Negative dy to make "up" positive
+    let angleRad = Math.atan2(-dy, dx);
     let angleDeg = angleRad * (180 / Math.PI);
-    if (angleDeg < 0) angleDeg += 360;
 
     distanceDisplay.innerText = `${distPx.toFixed(2)} px`;
     angleDisplay.innerText = `${angleDeg.toFixed(1)}°`;
@@ -355,6 +369,7 @@ window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         state.startPoint = null;
         state.currentPoint = null;
+        state.isLocked = false;
         measurementsDiv.classList.add('hidden');
         welcomeMsg.classList.remove('hidden');
         requestDraw();
