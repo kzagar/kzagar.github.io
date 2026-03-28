@@ -189,6 +189,7 @@ body.measurer-page {
 .measurer-page canvas {
     flex-grow: 1;
     cursor: crosshair;
+    touch-action: none;
     background-image:
         linear-gradient(45deg, #1e293b 25%, transparent 25%),
         linear-gradient(-45deg, #1e293b 25%, transparent 25%),
@@ -323,6 +324,43 @@ body.measurer-page {
     font-size: 0.75rem;
     line-height: 1.6;
 }
+@media (max-width: 600px) {
+    .measurer-page #bottom-panel {
+        min-width: unset;
+        width: 90%;
+        padding: 12px;
+        bottom: 10px;
+    }
+
+    .measurer-page .flex-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .measurer-page .metrics-section {
+        flex-direction: column;
+        gap: 8px;
+        padding-right: 0;
+        border-right: none;
+    }
+
+    .measurer-page .controls-section {
+        display: none;
+    }
+
+    .measurer-page .value-display {
+        font-size: 0.95rem;
+    }
+
+    .measurer-page .instruction {
+        font-size: 0.75rem;
+    }
+
+    .measurer-page .calibration-box {
+        width: 100px;
+    }
+}
+
 
 /* Password Generator Specific Styles */
 .password-page .controls {
