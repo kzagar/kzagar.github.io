@@ -433,6 +433,7 @@ body.index-page {
     z-index: 2;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    touch-action: none;
 }
 
 .index-page canvas#overlayCanvas {
