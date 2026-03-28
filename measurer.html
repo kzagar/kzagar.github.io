@@ -32,13 +32,14 @@
                         <span class="kbd">Ctrl</span>+<span class="kbd">Wheel</span> Zoom<br>
                         <span class="kbd">Ctrl</span>+<span class="kbd">Drag</span> Pan<br>
                         <span class="kbd">Esc</span> Reset<br>
-                        <span class="kbd">Paste</span> Image
+                        <span class="kbd">Paste/Upload</span> Image
                     </div>
                 </div>
             </div>
             <div id="welcome-msg" style="padding: 10px; text-align: center;">
-                <p>Paste an image to start measuring</p>
-                <button id="paste-btn" class="primary-btn">Paste Image</button>
+                <p>Paste or upload an image to start measuring</p>
+                <input type="file" id="image-input" accept="image/*" style="display: none;">
+                <button id="upload-btn" class="primary-btn">Upload Image</button>
             </div>
         </div>
 

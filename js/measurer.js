@@ -70,24 +70,18 @@ window.addEventListener('paste', (e) => {
     }
 });
 
-const pasteBtn = document.getElementById('paste-btn');
-if (pasteBtn) {
-    pasteBtn.addEventListener('click', async () => {
-        try {
-            const clipboardItems = await navigator.clipboard.read();
-            for (const item of clipboardItems) {
-                for (const type of item.types) {
-                    if (type.startsWith('image/')) {
-                        const blob = await item.getType(type);
-                        handleImageBlob(blob);
-                        return;
-                    }
-                }
-            }
-            alert("No image found in clipboard. Try copying an image first.");
-        } catch (err) {
-            console.error("Clipboard read failed:", err);
-            alert("Could not access clipboard directly. Please use Ctrl+V to paste.");
+const uploadBtn = document.getElementById('upload-btn');
+const imageInput = document.getElementById('image-input');
+
+if (uploadBtn && imageInput) {
+    uploadBtn.addEventListener('click', () => {
+        imageInput.click();
+    });
+
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            handleImageBlob(file);
         }
     });
 }
