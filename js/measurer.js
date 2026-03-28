@@ -128,6 +128,33 @@ function requestDraw() {
 }
 
 /**
+ * Updates the global transform state (pan offset and zoom level) based on user interaction.
+ * @param {number} dx - Pixel delta X for panning.
+ * @param {number} dy - Pixel delta Y for panning.
+ * @param {number} factor - Zoom multiplier (1 for identity/no zoom).
+ * @param {number} [focalX] - Viewport X coordinate of the cursor/pinch center during a zoom event.
+ * @param {number} [focalY] - Viewport Y coordinate of the cursor/pinch center during a zoom event.
+ */
+function updateTransform(dx, dy, factor, focalX, focalY) {
+    if (!state.image) return;
+
+    if (factor !== 1) {
+        // Zoom around focal point
+        const focalImgPos = screenToImage(focalX, focalY);
+        state.transform.zoom *= factor;
+        const newFocalScreenPos = imageToScreen(focalImgPos.x, focalImgPos.y);
+
+        state.transform.x += (focalX - newFocalScreenPos.x);
+        state.transform.y += (focalY - newFocalScreenPos.y);
+    }
+
+    state.transform.x += dx;
+    state.transform.y += dy;
+
+    requestDraw();
+}
+
+/**
  * Primary rendering function. Clears the canvas, applies state transformations,
  * draws the active image, and overlays the user's measurement indicator lines.
  */
@@ -196,10 +223,8 @@ window.addEventListener('mousemove', (e) => {
     if (state.panning) {
         const dx = e.clientX - state.lastPanPos.x;
         const dy = e.clientY - state.lastPanPos.y;
-        state.transform.x += dx;
-        state.transform.y += dy;
+        updateTransform(dx, dy, 1);
         state.lastPanPos = { x: e.clientX, y: e.clientY };
-        requestDraw();
     } else {
         // Always update current point if not panning
         state.currentPoint = screenToImage(e.clientX, e.clientY);
@@ -220,17 +245,70 @@ canvas.addEventListener('wheel', (e) => {
     e.preventDefault();
 
     const factor = Math.pow(1.1, -e.deltaY / 100);
-    const newZoom = state.transform.zoom * factor;
+    updateTransform(0, 0, factor, e.clientX, e.clientY);
+}, { passive: false });
 
-    // Zoom around mouse cursor
-    const mouseImgPos = screenToImage(e.clientX, e.clientY);
-    state.transform.zoom = newZoom;
-    const newMouseScreenPos = imageToScreen(mouseImgPos.x, mouseImgPos.y);
+let lastTouches = [];
 
-    state.transform.x += (e.clientX - newMouseScreenPos.x);
-    state.transform.y += (e.clientY - newMouseScreenPos.y);
+canvas.addEventListener('touchstart', (e) => {
+    if (!state.image) return;
+    e.preventDefault();
+    const touches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
 
-    requestDraw();
+    if (touches.length === 1) {
+        // Single-finger: Start measurement
+        state.startPoint = screenToImage(touches[0].x, touches[0].y);
+        state.currentPoint = state.startPoint;
+        welcomeMsg.classList.add('hidden');
+        measurementsDiv.classList.remove('hidden');
+        updateMeasurements();
+        requestDraw();
+    }
+    lastTouches = touches;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+    if (!state.image) return;
+    e.preventDefault();
+    const touches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+
+    if (touches.length === 1 && lastTouches.length === 1) {
+        // Single-finger: update current point for measurement
+        state.currentPoint = screenToImage(touches[0].x, touches[0].y);
+        if (state.startPoint) {
+            measurementsDiv.classList.remove('hidden');
+            updateMeasurements();
+        }
+        requestDraw();
+    } else if (touches.length >= 2 && lastTouches.length >= 2) {
+        // Two-finger pinch-to-zoom and panning
+        const getDist = (t1, t2) => Math.hypot(t1.x - t2.x, t1.y - t2.y);
+        const getMid = (t1, t2) => ({ x: (t1.x + t2.x) / 2, y: (t1.y + t2.y) / 2 });
+
+        const lastDist = getDist(lastTouches[0], lastTouches[1]);
+        const currentDist = getDist(touches[0], touches[1]);
+
+        const lastMid = getMid(lastTouches[0], lastTouches[1]);
+        const currentMid = getMid(touches[0], touches[1]);
+
+        const factor = lastDist > 0 ? currentDist / lastDist : 1;
+        const dx = currentMid.x - lastMid.x;
+        const dy = currentMid.y - lastMid.y;
+
+        updateTransform(dx, dy, factor, currentMid.x, currentMid.y);
+    }
+
+    lastTouches = touches;
+}, { passive: false });
+
+canvas.addEventListener('touchend', (e) => {
+    e.preventDefault();
+    lastTouches = Array.from(e.touches).map(t => ({ x: t.clientX, y: t.clientY }));
+}, { passive: false });
+
+canvas.addEventListener('touchcancel', (e) => {
+    e.preventDefault();
+    lastTouches = [];
 }, { passive: false });
 
 // --- Measurement Logic ---
