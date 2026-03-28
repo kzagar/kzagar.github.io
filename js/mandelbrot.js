@@ -6,7 +6,7 @@ const whatIsThisLink = document.getElementById('whatIsThisLink');
 const closeBtn = document.querySelector('.close-btn');
 
 const avatarImg = new Image();
-avatarImg.src = 'images/kzagar_circular.png';
+avatarImg.src = 'images/kzagar.png';
 avatarImg.onload = () => requestRender();
 
 let state = {
