@@ -327,37 +327,46 @@ body.measurer-page {
 @media (max-width: 600px) {
     .measurer-page #bottom-panel {
         min-width: unset;
-        width: 90%;
-        padding: 12px;
+        width: 95%;
+        padding: 8px;
         bottom: 10px;
     }
 
     .measurer-page .flex-container {
-        flex-direction: column;
-        gap: 12px;
+        flex-direction: row;
+        gap: 8px;
+        justify-content: space-between;
     }
 
     .measurer-page .metrics-section {
-        flex-direction: column;
-        gap: 8px;
+        flex-direction: row;
+        gap: 12px;
         padding-right: 0;
         border-right: none;
+        align-items: center;
     }
 
-    .measurer-page .controls-section {
+    .measurer-page .metric-group {
+        flex-direction: row;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .measurer-page .controls-section,
+    .measurer-page .instruction {
         display: none;
     }
 
     .measurer-page .value-display {
-        font-size: 0.95rem;
-    }
-
-    .measurer-page .instruction {
-        font-size: 0.75rem;
+        font-size: 0.9rem;
+        white-space: nowrap;
     }
 
     .measurer-page .calibration-box {
-        width: 100px;
+        width: 70px;
+        margin-top: 0;
+        padding: 2px 4px;
+        font-size: 0.85rem;
     }
 }
 
