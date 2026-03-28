@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kzagar.github.io</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="index-page">
+    <canvas id="mandelbrotCanvas"></canvas>
+    <canvas id="overlayCanvas"></canvas>
+
+    <nav class="sidebar">
+        <h1>Navigation</h1>
+        <ul>
+            <li><a href="password.html">Password Generator</a></li>
+            <li><a href="shared-secret.html">Split Secret</a></li>
+            <li><a href="get-secret.html">Reconstruct Secret</a></li>
+            <li><a href="measurer.html">Image Measurer</a></li>
+            <li><a href="dih-proto/index.html">Breathing Protocols</a></li>
+            <li><a href="blog/index.html">Blog</a></li>
+            <li><a href="#" id="whatIsThisLink">What is this?</a></li>
+        </ul>
+    </nav>
+
+    <div id="infoOverlay" class="hidden">
+        <div class="overlay-content">
+            <button class="close-btn">&times;</button>
+            <h1>The Mandelbrot Set</h1>
+            <p>The Mandelbrot set is a set of points in the complex plane whose boundary forms a fractal. It is defined by the iterative formula:</p>
+            <div class="formula">z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c</div>
+            <p>For each point <strong>c</strong>, we start with <strong>z<sub>0</sub> = 0</strong>. If the sequence remains bounded (does not escape to infinity), the point belongs to the set and is colored black. If it escapes, it is colored based on how quickly it diverges.</p>
+            <p>This implementation uses <strong>WebGL</strong> for GPU acceleration, allowing for real-time fluid interaction even at deep zooms.</p>
+            <p><a href="https://en.wikipedia.org/wiki/Mandelbrot_set" target="_blank">Learn more on Wikipedia</a></p>
+        </div>
+    </div>
+
+    <script src="js/mandelbrot.js"></script>
+</body>
+
+</html>

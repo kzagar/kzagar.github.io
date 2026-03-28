@@ -138,6 +138,13 @@ const Shamir = (() => {
 
     // --- Core SSS Functions ---
 
+    /**
+     * Splits a secret into multiple shares using Shamir's Secret Sharing over GF(257).
+     * @param {string} secretText - The secret string to split.
+     * @param {number} numShares_s - Total number of shares to generate.
+     * @param {number} threshold_t - Minimum number of shares required to reconstruct the secret.
+     * @returns {string[]} An array of share strings.
+     */
     function split(secretText, numShares_s, threshold_t) {
         const secretBytes = textToBytes(secretText);
         if (secretBytes.length === 0) throw new Error("Secret cannot be empty.");
@@ -175,9 +182,34 @@ const Shamir = (() => {
             }
             resultSharesStrings.push(formatShareOutputString(rawShareDataString));
         }
+
+        // --- Verification Check ---
+        // Test reconstruction with up to 50 random subsets of threshold_t shares to ensure recoverability.
+        const numTests = 50;
+        for (let testIdx = 0; testIdx < numTests; testIdx++) {
+            // Fisher-Yates shuffle to pick a random subset
+            const shuffledShares = [...resultSharesStrings];
+            for (let i = shuffledShares.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledShares[i], shuffledShares[j]] = [shuffledShares[j], shuffledShares[i]];
+            }
+            
+            const selectedSubset = shuffledShares.slice(0, threshold_t);
+            const recoveredSecret = reconstruct(selectedSubset);
+            
+            if (recoveredSecret !== secretText) {
+                throw new Error("Internal verification failed: Generated shares could not successfully reconstruct the original secret.");
+            }
+        }
+
         return resultSharesStrings;
     }
 
+    /**
+     * Reconstructs the secret from a given set of share strings.
+     * @param {string[]} shareStrings - An array of share strings.
+     * @returns {string} The reconstructed secret string.
+     */
     function reconstruct(shareStrings) {
         if (shareStrings.length === 0) throw new Error("No shares provided for reconstruction.");
         
@@ -197,34 +229,35 @@ const Shamir = (() => {
             throw new Error(`Not enough shares provided for reconstruction. Required: ${firstEmbeddedT}, Provided: ${parsedShares.length}.`);
         }
 
-        // Proceed with reconstruction
+        // Pre-compute Lagrange basis polynomials evaluated at x=0
+        // These depend only on the x-coordinates of the shares, so they can be
+        // computed once and reused for every byte of the secret.
+        const sharesToUse = parsedShares; // Use all provided (and validated) shares
+        const lagrangeWeights = new Array(sharesToUse.length);
+        
+        for (let i = 0; i < sharesToUse.length; i++) {
+            const xi = sharesToUse[i].x;
+            let lagrangeNumerator = 1;
+            let lagrangeDenominator = 1;
+
+            for (let j = 0; j < sharesToUse.length; j++) {
+                if (i === j) continue;
+                const xj = sharesToUse[j].x;
+                lagrangeNumerator = mod(lagrangeNumerator * (-xj), PRIME);
+                lagrangeDenominator = mod(lagrangeDenominator * (xi - xj), PRIME);
+            }
+            lagrangeWeights[i] = mod(lagrangeNumerator * modInverse(lagrangeDenominator, PRIME), PRIME);
+        }
+
         const numBytes = parsedShares[0].y_values.length;
         const reconstructedBytes = [];
 
         for (let byteIdx = 0; byteIdx < numBytes; byteIdx++) {
             let sum = 0;
-            // Use only 'firstEmbeddedT' shares for reconstruction if more are provided,
-            // or use all if parsedShares.length is exactly firstEmbeddedT.
-            // For simplicity and to use all distinct information if available (though SSS only needs t),
-            // we'll use all provided (and validated) shares. The check above ensures we have at least 't'.
-            const sharesToUse = parsedShares; // Or: parsedShares.slice(0, firstEmbeddedT);
-
+            
             for (let i = 0; i < sharesToUse.length; i++) {
-                const currentShare = sharesToUse[i];
-                const xi = currentShare.x;
-                const yi_byte = currentShare.y_values[byteIdx];
-                
-                let lagrangeNumerator = 1;
-                let lagrangeDenominator = 1;
-
-                for (let j = 0; j < sharesToUse.length; j++) {
-                    if (i === j) continue;
-                    const xj = sharesToUse[j].x;
-                    lagrangeNumerator = mod(lagrangeNumerator * (-xj), PRIME);
-                    lagrangeDenominator = mod(lagrangeDenominator * (xi - xj), PRIME);
-                }
-                
-                const term = mod(yi_byte * lagrangeNumerator * modInverse(lagrangeDenominator, PRIME), PRIME);
+                const yi_byte = sharesToUse[i].y_values[byteIdx];
+                const term = mod(yi_byte * lagrangeWeights[i], PRIME);
                 sum = mod(sum + term, PRIME);
             }
             reconstructedBytes.push(sum);

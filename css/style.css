@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
     margin: 20px;
@@ -109,12 +111,469 @@ body.qr-page { /* Add a class to body in qr-generator.html for specific targetin
     margin-top: 15px;
 }
 
-/* Adjust input width for QR page if it was different, otherwise remove if common style is fine */
-/* input[type="text"], input[type="number"] on QR page already uses calc(100% - 22px) vs 24px.
-   If this small difference is intended, keep it in HTML or make a more specific selector.
-   For now, assuming the common input style is mostly acceptable.
-   The existing rule is: width: calc(100% - 24px);
-   The QR HTML had: width: calc(100% - 22px);
-   Let's make it consistent or use a more specific selector if needed.
-   For now, we'll rely on the existing global input style.
-*/
+/* Shamir Get Secret Specific Styles */
+.get-secret-page .share-input-container {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #eee;
+}
+.get-secret-page .share-input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+.get-secret-page .share-input-group input[type="text"] {
+    flex-grow: 1;
+    margin-right: 10px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+.get-secret-page .share-input-group button {
+    width: auto; /* Don't take full width */
+    padding: 10px 15px;
+}
+.get-secret-page #reconstructedSecretArea {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #d4edda;
+    border-radius: 6px;
+    background-color: #d4edda; /* Light green for success */
+    color: #155724;
+}
+.get-secret-page #reconstructedSecretArea h2 {
+    margin-top: 0;
+    color: #155724;
+}
+.get-secret-page #reconstructedSecretValue {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 1.1em;
+    word-break: break-all;
+    background-color: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+}
+.get-secret-page #statusMessages {
+    margin-top: 15px;
+    font-style: italic;
+    color: #555;
+}
+.get-secret-page .error-message {
+    color: red;
+    font-weight: bold;
+}
+
+/* Measurer Page Specific Styles */
+body.measurer-page {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #0f172a; /* var(--bg-color) */
+    color: #f8fafc; /* var(--text-primary) */
+    font-family: 'Inter', sans-serif;
+    display: block;
+    justify-content: unset;
+    align-items: unset;
+    min-height: unset;
+}
+
+.measurer-page #container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.measurer-page canvas {
+    flex-grow: 1;
+    cursor: crosshair;
+    background-image:
+        linear-gradient(45deg, #1e293b 25%, transparent 25%),
+        linear-gradient(-45deg, #1e293b 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #1e293b 75%),
+        linear-gradient(-45deg, transparent 75%, #1e293b 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.measurer-page .overlay {
+    position: absolute;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.measurer-page .panel {
+    background: rgba(30, 41, 59, 0.7); /* var(--panel-bg) */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* var(--glass-border) */
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    pointer-events: auto;
+}
+
+.measurer-page #bottom-panel {
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 450px;
+}
+
+.measurer-page .flex-container {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    justify-content: center;
+}
+
+.measurer-page .metrics-section {
+    display: flex;
+    gap: 20px;
+    text-align: left;
+    padding-right: 24px;
+    border-right: 1px solid rgba(255, 255, 255, 0.1); /* var(--glass-border) */
+}
+
+.measurer-page .metric-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.measurer-page .controls-section {
+    text-align: left;
+}
+
+.measurer-page .instruction {
+    font-size: 0.8rem;
+    color: #94a3b8; /* var(--text-secondary) */
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.measurer-page .value-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #38bdf8; /* var(--accent-color) */
+}
+
+.measurer-page .calibration-box {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* var(--glass-border) */
+    color: #38bdf8; /* var(--accent-color) */
+    border-radius: 4px;
+    padding: 2px 8px;
+    width: 120px;
+    font-family: inherit;
+    outline: none;
+    margin-top: 4px;
+}
+
+.measurer-page .calibration-box:focus {
+    border-color: #38bdf8; /* var(--accent-color) */
+    background: rgba(15, 23, 42, 0.6);
+}
+
+.measurer-page .kbd {
+    background: #334155;
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.7rem;
+    border-bottom: 2px solid #0f172a;
+    margin: 0 1px;
+    color: #fff;
+}
+
+.measurer-page #status-indicator {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 0.8rem;
+    color: #94a3b8; /* var(--text-secondary) */
+}
+
+.measurer-page .controls-list {
+    font-size: 0.75rem;
+    line-height: 1.6;
+}
+
+/* Password Generator Specific Styles */
+.password-page .controls {
+    margin-bottom: 20px;
+}
+.password-page .controls label {
+    margin-top: 10px;
+}
+.password-page .slider-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.password-page .slider-container input[type="range"] {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+.password-page .slider-container .value {
+    font-weight: 600;
+    color: #4b4f56;
+    min-width: 25px; /* Ensures the number doesn't shift layout */
+    text-align: right;
+}
+.password-page .password-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f0f2f5;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 16px;
+    word-break: break-all;
+}
+.password-page .password-container button {
+    width: auto;
+    padding: 6px 10px;
+    margin-left: 10px;
+    background-color: #28a745;
+    transition: background-color 0.2s ease;
+}
+.password-page .password-container button:hover {
+    background-color: #218838;
+}
+.password-page .output-container {
+    margin-top: 25px;
+    padding: 15px;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+.password-page .output-container h2 {
+    margin-top: 0;
+    text-align: center;
+    color: #1c1e21;
+}
+.password-page .checkbox-group {
+    margin-bottom: 18px;
+}
+.password-page .checkbox-group label {
+    display: inline-block;
+    margin-right: 15px;
+}
+.password-page .message-box {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+}
+.password-page .message-box.show {
+    opacity: 1;
+}
+.password-page .copy-icon {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+/* Index Page Specific Styles */
+body.index-page {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000;
+    display: block; /* Override default centered body */
+}
+
+.index-page canvas#mandelbrotCanvas,
+.index-page canvas#overlayCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.index-page canvas#mandelbrotCanvas {
+    z-index: 2;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+}
+
+.index-page canvas#overlayCanvas {
+    z-index: 1;
+    pointer-events: none;
+}
+
+.index-page .sidebar {
+    position: fixed;
+    top: 50%;
+    left: 30px;
+    transform: translateY(-50%);
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    z-index: 10;
+}
+
+.index-page .sidebar h1 {
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+    text-align: left;
+}
+
+.index-page .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.index-page .sidebar ul li {
+    margin-bottom: 12px;
+}
+
+.index-page .sidebar ul li a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-block;
+}
+
+.index-page .sidebar ul li a:hover {
+    color: #38bdf8;
+    transform: translateX(5px);
+}
+
+/* Info Overlay Styles */
+#infoOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: opacity 0.3s ease;
+}
+
+#infoOverlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+    display: flex !important; /* Keep flex for transition if visible, use opacity */
+}
+
+.overlay-content {
+    background: rgba(30, 41, 59, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.5);
+    position: relative;
+    color: #e2e8f0;
+}
+
+.overlay-content h1 {
+    color: #fff;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.overlay-content p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.overlay-content .formula {
+    background: rgba(15, 23, 42, 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 1.3rem;
+    text-align: center;
+    margin: 20px 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.overlay-content a {
+    color: #38bdf8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.overlay-content a:hover {
+    text-decoration: underline;
+}
+
+.overlay-content .close-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 2rem;
+    cursor: pointer;
+    line-height: 1;
+    width: auto;
+    padding: 0;
+}
+
+.overlay-content .close-btn:hover {
+    color: #fff;
+    background: none;
+}
+
+/* Shared Secret Specific Styles */
+.shared-secret-page .share-item {
+    background-color: #f0f2f5;
+    padding: 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.shared-secret-page .share-item .share-value {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.9em;
+    word-break: break-all;
+    margin-right: 15px;
+}
+.shared-secret-page .share-item button {
+    width: auto;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+.shared-secret-page #sharesOutput {
+    margin-top: 25px;
+}
+
+

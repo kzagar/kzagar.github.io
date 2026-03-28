@@ -81,14 +81,19 @@ function generatePasswords() {
 
 /**
  * Generates a single password of a given length from a set of available characters.
+ * Uses cryptographically secure random number generation.
  * @param {number} length The desired length of the password.
  * @param {string} chars The string of characters to choose from.
  * @returns {string} The generated password.
  */
 function generateSinglePassword(length, chars) {
     let password = '';
+    const randomArray = new Uint32Array(length);
+    window.crypto.getRandomValues(randomArray);
+    
     for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
+        // Modulo bias is negligible for small character sets and 32-bit random integers.
+        const randomIndex = randomArray[i] % chars.length;
         password += chars[randomIndex];
     }
     return password;
@@ -120,21 +125,28 @@ function addPasswordToDOM(password) {
  * @param {string} text The text to copy.
  */
 function copyToClipboard(text) {
-    // This is the recommended method for clipboard access
-    // document.execCommand('copy') is a fallback for older browsers
-    const tempInput = document.createElement('textarea');
-    tempInput.value = text;
-    document.body.appendChild(tempInput);
-    tempInput.select();
-    
-    try {
-        document.execCommand('copy');
-        showMessage();
-    } catch (err) {
-        console.error('Could not copy text to clipboard', err);
-    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showMessage();
+        }).catch(err => {
+            console.error('Could not copy text to clipboard', err);
+        });
+    } else {
+        // Fallback for older browsers
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        
+        try {
+            document.execCommand('copy');
+            showMessage();
+        } catch (err) {
+            console.error('Could not copy text to clipboard (fallback)', err);
+        }
 
-    document.body.removeChild(tempInput);
+        document.body.removeChild(tempInput);
+    }
 }
 
 /**

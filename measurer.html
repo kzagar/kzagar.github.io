@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Measurer</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="measurer-page">
+    <div id="container">
+        <canvas id="canvas"></canvas>
+
+        <div id="bottom-panel" class="overlay panel">
+            <div id="measurements" class="flex-container">
+                <div class="metrics-section">
+                    <div class="metric-group">
+                        <div class="instruction">Distance</div>
+                        <div id="distance-display" class="value-display">0.00 px</div>
+                        <input type="number" id="scaled-distance-input" class="calibration-box" step="any"
+                            placeholder="Enter units">
+                    </div>
+                    <div class="metric-group">
+                        <div class="instruction">Angle (from Right)</div>
+                        <div id="angle-display" class="value-display">0.0°</div>
+                    </div>
+                </div>
+                <div class="controls-section">
+                    <div class="instruction">Controls</div>
+                    <div class="controls-list">
+                        <span class="kbd">Ctrl</span>+<span class="kbd">Wheel</span> Zoom<br>
+                        <span class="kbd">Ctrl</span>+<span class="kbd">Drag</span> Pan<br>
+                        <span class="kbd">Esc</span> Reset<br>
+                        <span class="kbd">Paste</span> Image
+                    </div>
+                </div>
+            </div>
+            <div id="welcome-msg" style="padding: 10px; text-align: center;">
+                Paste an image to start measuring
+            </div>
+        </div>
+
+        <div id="status-indicator">No image loaded</div>
+    </div>
+
+    <script src="js/measurer.js"></script>
+</body>
+
+</html>
+</body>
+
+</html>
