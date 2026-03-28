@@ -470,6 +470,37 @@ body.index-page {
 
 .index-page .sidebar ul li {
     margin-bottom: 12px;
+    position: relative;
+}
+
+.index-page .sidebar ul li[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: calc(100% + 15px);
+    top: 50%;
+    transform: translateY(-50%) translateX(10px);
+    background: rgba(30, 41, 59, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: #e2e8f0;
+    font-size: 0.85rem;
+    font-weight: 400;
+    width: 250px;
+    white-space: normal;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    line-height: 1.4;
+}
+
+.index-page .sidebar ul li[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
 }
 
 .index-page .sidebar ul li a {

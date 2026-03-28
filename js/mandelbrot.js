@@ -331,7 +331,7 @@ window.addEventListener('dblclick', () => {
     if (isAnimating) return;
     isAnimating = true;
 
-    const targetZoom = 800; // Deep enough to see the avatar clearly
+    const targetZoom = 20; // Deep enough to see the avatar clearly
     const targetX = state.avatar.re;
     const targetY = state.avatar.im;
 
@@ -339,7 +339,7 @@ window.addEventListener('dblclick', () => {
     const startX = state.transform.x;
     const startY = state.transform.y;
 
-    const duration = 1200; // ms
+    const duration = 1000; // ms
     const startTime = performance.now();
 
     function animate(currentTime) {
@@ -347,7 +347,7 @@ window.addEventListener('dblclick', () => {
         const progress = Math.min(elapsed / duration, 1);
         const ease = 1 - Math.pow(1 - progress, 4); // ease-out quartic
 
-        state.transform.zoom = startZoom + (targetZoom - startZoom) * ease;
+        state.transform.zoom = startZoom + (targetZoom - startZoom) * progress;
         state.transform.x = startX + (targetX - startX) * ease;
         state.transform.y = startY + (targetY - startY) * ease;
 
