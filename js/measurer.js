@@ -6,6 +6,13 @@ const angleDisplay = document.getElementById('angle-display');
 const statusIndicator = document.getElementById('status-indicator');
 const welcomeMsg = document.getElementById('welcome-msg');
 const measurementsDiv = document.getElementById('measurements');
+const bottomPanel = document.getElementById('bottom-panel');
+const panelTitlebar = document.getElementById('panel-titlebar');
+const panelBody = document.getElementById('panel-body');
+const panelMinimized = document.getElementById('panel-minimized');
+const minimizedDistance = document.getElementById('minimized-distance');
+const panelMinimizeBtn = document.getElementById('panel-minimize-btn');
+const panelRestoreBtn = document.getElementById('panel-restore-btn');
 
 // --- Drawing ---
 let isDrawing = false;
@@ -350,6 +357,10 @@ function updateMeasurements() {
             scaledDistanceInput.value = scaledDist.toFixed(4);
         }
     }
+
+    if (bottomPanel.classList.contains('minimized')) {
+        updateMinimizedDisplay();
+    }
 }
 
 scaledDistanceInput.addEventListener('keydown', (e) => {
@@ -387,4 +398,87 @@ window.addEventListener('keydown', (e) => {
         // Optionally clear previous value if starting fresh
         scaledDistanceInput.value = '';
     }
+});
+
+// --- Draggable Panel ---
+(function () {
+    let isDragging = false;
+    let dragOffsetX = 0;
+    let dragOffsetY = 0;
+    let positioned = false;
+
+    function ensureAbsolutePosition() {
+        if (positioned) return;
+        const rect = bottomPanel.getBoundingClientRect();
+        bottomPanel.style.left = rect.left + 'px';
+        bottomPanel.style.top = rect.top + 'px';
+        bottomPanel.style.bottom = 'auto';
+        bottomPanel.style.transform = 'none';
+        positioned = true;
+    }
+
+    function clampPosition() {
+        const rect = bottomPanel.getBoundingClientRect();
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        let left = parseFloat(bottomPanel.style.left);
+        let top = parseFloat(bottomPanel.style.top);
+        left = Math.max(0, Math.min(left, vw - rect.width));
+        top = Math.max(0, Math.min(top, vh - rect.height));
+        bottomPanel.style.left = left + 'px';
+        bottomPanel.style.top = top + 'px';
+    }
+
+    panelTitlebar.addEventListener('mousedown', (e) => {
+        if (e.target === panelMinimizeBtn) return;
+        e.preventDefault();
+        ensureAbsolutePosition();
+        isDragging = true;
+        const rect = bottomPanel.getBoundingClientRect();
+        dragOffsetX = e.clientX - rect.left;
+        dragOffsetY = e.clientY - rect.top;
+        bottomPanel.classList.add('dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        bottomPanel.style.left = (e.clientX - dragOffsetX) + 'px';
+        bottomPanel.style.top = (e.clientY - dragOffsetY) + 'px';
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        bottomPanel.classList.remove('dragging');
+        clampPosition();
+    });
+
+    window.addEventListener('resize', () => {
+        if (positioned) clampPosition();
+    });
+})();
+
+// --- Minimize / Restore ---
+function updateMinimizedDisplay() {
+    minimizedDistance.innerText = distanceDisplay.innerText;
+    if (state.isScaled && scaledDistanceInput.value) {
+        minimizedDistance.innerText = scaledDistanceInput.value + ' units';
+    }
+}
+
+panelMinimizeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    updateMinimizedDisplay();
+    panelBody.classList.add('hidden');
+    panelMinimized.classList.remove('hidden');
+    bottomPanel.classList.add('minimized');
+    panelMinimizeBtn.style.display = 'none';
+});
+
+panelRestoreBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    panelBody.classList.remove('hidden');
+    panelMinimized.classList.add('hidden');
+    bottomPanel.classList.remove('minimized');
+    panelMinimizeBtn.style.display = '';
 });

@@ -13,33 +13,43 @@
         <canvas id="canvas"></canvas>
 
         <div id="bottom-panel" class="overlay panel">
-            <div id="measurements" class="flex-container">
-                <div class="metrics-section">
-                    <div class="metric-group">
-                        <div class="instruction">Distance</div>
-                        <div id="distance-display" class="value-display">0.00 px</div>
-                        <input type="number" id="scaled-distance-input" class="calibration-box" step="any"
-                            placeholder="Enter units">
+            <div id="panel-titlebar">
+                <span id="panel-title">Measurer</span>
+                <button id="panel-minimize-btn" title="Minimize">&#x2012;</button>
+            </div>
+            <div id="panel-body">
+                <div id="measurements" class="flex-container">
+                    <div class="metrics-section">
+                        <div class="metric-group">
+                            <div class="instruction">Distance</div>
+                            <div id="distance-display" class="value-display">0.00 px</div>
+                            <input type="number" id="scaled-distance-input" class="calibration-box" step="any"
+                                placeholder="Enter units">
+                        </div>
+                        <div class="metric-group">
+                            <div class="instruction">Angle (from Right)</div>
+                            <div id="angle-display" class="value-display">0.0°</div>
+                        </div>
                     </div>
-                    <div class="metric-group">
-                        <div class="instruction">Angle (from Right)</div>
-                        <div id="angle-display" class="value-display">0.0°</div>
+                    <div class="controls-section">
+                        <div class="instruction">Controls</div>
+                        <div class="controls-list">
+                            <span class="kbd">Ctrl</span>+<span class="kbd">Wheel</span> Zoom<br>
+                            <span class="kbd">Ctrl</span>+<span class="kbd">Drag</span> Pan<br>
+                            <span class="kbd">Esc</span> Reset<br>
+                            <span class="kbd">Paste/Upload</span> Image
+                        </div>
                     </div>
                 </div>
-                <div class="controls-section">
-                    <div class="instruction">Controls</div>
-                    <div class="controls-list">
-                        <span class="kbd">Ctrl</span>+<span class="kbd">Wheel</span> Zoom<br>
-                        <span class="kbd">Ctrl</span>+<span class="kbd">Drag</span> Pan<br>
-                        <span class="kbd">Esc</span> Reset<br>
-                        <span class="kbd">Paste/Upload</span> Image
-                    </div>
+                <div id="welcome-msg" style="padding: 10px; text-align: center;">
+                    <p>Paste or upload an image to start measuring</p>
+                    <input type="file" id="image-input" accept="image/*" style="display: none;">
+                    <button id="upload-btn" class="primary-btn">Upload Image</button>
                 </div>
             </div>
-            <div id="welcome-msg" style="padding: 10px; text-align: center;">
-                <p>Paste or upload an image to start measuring</p>
-                <input type="file" id="image-input" accept="image/*" style="display: none;">
-                <button id="upload-btn" class="primary-btn">Upload Image</button>
+            <div id="panel-minimized" class="hidden">
+                <span id="minimized-distance" class="value-display">0.00 px</span>
+                <button id="panel-restore-btn" title="Restore">&#x2610;</button>
             </div>
         </div>
 

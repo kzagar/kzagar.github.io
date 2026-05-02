@@ -324,6 +324,74 @@ body.measurer-page {
     font-size: 0.75rem;
     line-height: 1.6;
 }
+
+.measurer-page #panel-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: grab;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.measurer-page #panel-titlebar:active {
+    cursor: grabbing;
+}
+
+.measurer-page #panel-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #94a3b8;
+}
+
+.measurer-page #panel-minimize-btn,
+.measurer-page #panel-restore-btn {
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+.measurer-page #panel-minimize-btn:hover,
+.measurer-page #panel-restore-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+}
+
+.measurer-page #panel-minimized {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.measurer-page #panel-minimized.hidden {
+    display: none;
+}
+
+.measurer-page #bottom-panel.minimized #panel-titlebar {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.measurer-page #bottom-panel.dragging {
+    transition: none;
+}
+
 @media (max-width: 600px) {
     .measurer-page #bottom-panel {
         min-width: unset;
@@ -679,4 +747,3 @@ body.index-page {
     margin-top: 25px;
 }
 
-
