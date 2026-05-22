@@ -195,7 +195,7 @@ class Body {
     }
 }
 
-function createBall(x, z, layers, radius, massPerParticle, stiffness, damping, isPinned) {
+function createBall(x, z, layers, radius, massPerParticle, stiffness, damping, isPinned, omega = 0) {
     const body = new Body(`Ball ${bodies.length + 1}`);
     const particlesInLayer = [1];
     const particleMap = new Map();
@@ -265,6 +265,17 @@ function createBall(x, z, layers, radius, massPerParticle, stiffness, damping, i
             springs.push(s);
         }
     }
+
+    // Apply initial angular velocity
+    if (omega !== 0) {
+        body.particles.forEach(p => {
+            const rx = p.x - x;
+            const rz = p.z - z;
+            p.vx = -omega * rz;
+            p.vz = omega * rx;
+        });
+    }
+
     bodies.push(body);
     return body;
 }
@@ -637,8 +648,9 @@ document.getElementById('btn-spawn-ball').addEventListener('click', () => {
     const mass = parseFloat(document.getElementById('ball-mass').value);
     const k = parseFloat(document.getElementById('ball-k').value);
     const d = parseFloat(document.getElementById('ball-d').value);
+    const omega = parseFloat(document.getElementById('ball-omega').value);
     const pinned = document.getElementById('ball-pin').checked;
-    createBall(canvas.width / 2, canvas.height / 2, layers, radius, mass, k, d, pinned);
+    createBall(canvas.width / 2, canvas.height / 2, layers, radius, mass, k, d, pinned, omega);
 });
 
 document.getElementById('btn-spawn-box').addEventListener('click', () => {
@@ -718,9 +730,44 @@ canvas.addEventListener('mousemove', (e) => {
     });
 });
 
+function isLocalStorageEmpty() {
+    for (let i = 0; i < localStorage.length; i++) {
+        if (localStorage.key(i).startsWith('physim_state_')) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function preloadExample() {
+    if (!isLocalStorageEmpty()) return;
+
+    // Floor: 800px wide, 5 rows high
+    const floorW = canvas.width;
+    const floorRows = 5;
+    const spacing = 10;
+    const floorNx = Math.floor(floorW / spacing) + 1;
+    // For 5 rows, numZ should be 5. numZ = round(height / spacing)
+    const floorHeight = (floorRows) * spacing; // 50
+
+    // createBox(x1, z1, x2, z2, height, massPerParticle, numX, stiffness, damping, pinType)
+    // z is up. Bottom at z=5 so particles (radius 5) touch the bottom wall.
+    createBox(0, 5, floorW, 5, floorHeight, 10, floorNx, 5000, 5, 'bottom');
+
+    // Ball: upper left, 3 layers, clockwise rotation
+    const ballX = 150;
+    const ballZ = 450;
+    const ballLayers = 3;
+    const ballRadius = 60;
+    // 1 rotation per 3 seconds clockwise
+    const ballOmega = -2 * Math.PI / 3;
+    createBall(ballX, ballZ, ballLayers, ballRadius, 10, 5000, 5, false, ballOmega);
+}
+
 init();
 
 function init() {
+    preloadExample();
     requestAnimationFrame((ts) => {
         lastTime = ts;
         loop(ts);
