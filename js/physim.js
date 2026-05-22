@@ -490,7 +490,7 @@ class PhysimApp {
 
         const ball  = createBall(cx, cy, r, m, lay, k, d);
         ball.name   = 'Ball ' + (++this._bodyCounter);
-        ball.color  = BODY_COLORS[(this.sim.bodies.length) % BODY_COLORS.length];
+        ball.color  = BODY_COLORS[(this.sim.bodies.length + 1) % BODY_COLORS.length];
 
         /* initial velocities */
         const cmx = cx, cmy = cy;   // approximate CM = centre
@@ -528,7 +528,8 @@ class PhysimApp {
             'ballHeight', 'ballRadius', 'ballMass', 'ballLayers',
             'ballRot', 'ballVy', 'ballIntE',
             'kBall', 'dBall', 'kFloor', 'dFloor',
-            'gravity', 'collisionK', 'subSteps'
+            'gravity', 'collisionK', 'subSteps',
+            'boxHeight', 'boxCols', 'boxMass'
         ];
         for (const id of sliders) {
             const inp = document.getElementById('param_' + id);
@@ -689,7 +690,7 @@ class PhysimApp {
 
         const ball  = createBall(cx, cy, r, m, lay, k, d);
         ball.name   = 'Ball ' + (++this._bodyCounter);
-        ball.color  = BODY_COLORS[this.sim.bodies.length % BODY_COLORS.length];
+        ball.color  = BODY_COLORS[(this.sim.bodies.length + 1) % BODY_COLORS.length];
 
         for (const p of ball.particles) {
             p.vy += vy0;
