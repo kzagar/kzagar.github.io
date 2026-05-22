@@ -343,25 +343,50 @@ function createBox(x1, z1, x2, z2, height, massPerParticle, numX, stiffness, dam
 
 // Rendering helpers
 function worldToCanvas(x, z) {
+    // Mapping 800x600 world to actual canvas size
+    const scaleX = canvas.width / 800;
+    const scaleZ = canvas.height / 600;
     return {
-        x: x,
-        y: canvas.height - z
+        x: x * scaleX,
+        y: canvas.height - (z * scaleZ)
     };
 }
 
 function canvasToWorld(x, y) {
+    const scaleX = 800 / canvas.width;
+    const scaleZ = 600 / canvas.height;
     return {
-        x: x,
-        z: canvas.height - y
+        x: x * scaleX,
+        z: (canvas.height - y) * scaleZ
     };
 }
 
 function resolveCollisions() {
+    const gridSize = 40; // Max particle diameter is usually less than this
+    const grid = new Map();
+
+    const getGridKey = (x, z) => `${Math.floor(x / gridSize)},${Math.floor(z / gridSize)}`;
+
+    particles.forEach(p => {
+        const key = getGridKey(p.x, p.z);
+        if (!grid.has(key)) grid.set(key, []);
+        grid.get(key).push(p);
+    });
+
     for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-            const p2 = particles[j];
-            const dx = p2.x - p1.x;
+        const gx = Math.floor(p1.x / gridSize);
+        const gz = Math.floor(p1.z / gridSize);
+
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dz = -1; dz <= 1; dz++) {
+                const key = `${gx + dx},${gz + dz}`;
+                const neighbors = grid.get(key);
+                if (!neighbors) continue;
+
+                for (let p2 of neighbors) {
+                    if (p1.id <= p2.id) continue; // Avoid double counting and self-collision
+                    const dx = p2.x - p1.x;
             const dz = p2.z - p1.z;
             const dist = Math.hypot(dx, dz);
             const minDist = p1.radius + p2.radius;
@@ -414,20 +439,25 @@ function resolveCollisions() {
             }
         }
 
+        }
+    }
+
+    for (let i = 0; i < particles.length; i++) {
+        const p1 = particles[i];
         // Wall collisions
         if (!p1.isFixed) {
             if (p1.x < p1.radius) {
                 p1.x = p1.radius;
                 p1.vx = Math.abs(p1.vx);
-            } else if (p1.x > canvas.width - p1.radius) {
-                p1.x = canvas.width - p1.radius;
+            } else if (p1.x > 800 - p1.radius) {
+                p1.x = 800 - p1.radius;
                 p1.vx = -Math.abs(p1.vx);
             }
             if (p1.z < p1.radius) {
                 p1.z = p1.radius;
                 p1.vz = Math.abs(p1.vz);
-            } else if (p1.z > canvas.height - p1.radius) {
-                p1.z = canvas.height - p1.radius;
+            } else if (p1.z > 600 - p1.radius) {
+                p1.z = 600 - p1.radius;
                 p1.vz = -Math.abs(p1.vz);
             }
         }
@@ -650,7 +680,7 @@ document.getElementById('btn-spawn-ball').addEventListener('click', () => {
     const d = parseFloat(document.getElementById('ball-d').value);
     const omega = parseFloat(document.getElementById('ball-omega').value);
     const pinned = document.getElementById('ball-pin').checked;
-    createBall(canvas.width / 2, canvas.height / 2, layers, radius, mass, k, d, pinned, omega);
+    createBall(800 / 2, 600 / 2, layers, radius, mass, k, d, pinned, omega);
 });
 
 document.getElementById('btn-spawn-box').addEventListener('click', () => {
@@ -661,8 +691,8 @@ document.getElementById('btn-spawn-box').addEventListener('click', () => {
     const k = parseFloat(document.getElementById('box-k').value);
     const d = parseFloat(document.getElementById('box-d').value);
     const pin = document.getElementById('box-pin').value;
-    const x1 = (canvas.width - w) / 2;
-    const z1 = (canvas.height - h) / 2;
+    const x1 = (800 - w) / 2;
+    const z1 = (600 - h) / 2;
     createBox(x1, z1, x1 + w, z1, h, mass, nx, k, d, pin);
 });
 
@@ -670,6 +700,12 @@ document.getElementById('btn-reset').addEventListener('click', () => {
     particles = [];
     springs = [];
     bodies = [];
+});
+
+document.getElementById('sidebar-toggle').addEventListener('click', () => {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+    resizeCanvas();
 });
 
 // Heating/Cooling brush
@@ -743,7 +779,7 @@ function preloadExample() {
     if (!isLocalStorageEmpty()) return;
 
     // Floor: 800px wide, 5 rows high
-    const floorW = canvas.width;
+    const floorW = 800;
     const floorRows = 5;
     const spacing = 10;
     const floorNx = Math.floor(floorW / spacing) + 1;
@@ -764,9 +800,18 @@ function preloadExample() {
     createBall(ballX, ballZ, ballLayers, ballRadius, 10, 5000, 5, false, ballOmega);
 }
 
+function resizeCanvas() {
+    const container = document.getElementById('canvas-container');
+    canvas.width = container.clientWidth;
+    canvas.height = container.clientHeight;
+}
+
+window.addEventListener('resize', resizeCanvas);
+
 init();
 
 function init() {
+    resizeCanvas();
     preloadExample();
     requestAnimationFrame((ts) => {
         lastTime = ts;
