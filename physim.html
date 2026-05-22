@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physim: Statistical Mechanics Simulator</title>
+    <link rel="stylesheet" href="css/physim.css">
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="simCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div id="sidebar">
+        <details open>
+            <summary><h2>Simulation Controls</h2></summary>
+            <div class="control-group">
+                <label>Gravity <span><span id="val_gravity">196</span></span></label>
+                <input type="range" id="param_gravity" min="0" max="1000" value="196">
+            </div>
+            <div class="control-group">
+                <label>Brush Mode</label>
+                <select id="brush-mode">
+                    <option value="none">None</option>
+                    <option value="heat">Heat</option>
+                    <option value="cool">Cool</option>
+                </select>
+            </div>
+            <button id="btn-reset">Clear All</button>
+        </details>
+
+        <details>
+            <summary><h2>Spawn Ball</h2></summary>
+            <div class="control-group">
+                <label>Radius</label> <input type="number" id="ball-radius" value="40">
+                <label>Layers</label> <input type="number" id="ball-layers" value="2">
+                <label>Mass / Part</label> <input type="number" id="ball-mass" value="10">
+                <label>Stiffness</label> <input type="number" id="ball-k" value="5000">
+                <label>Damping</label> <input type="number" id="ball-d" value="5">
+                <label><input type="checkbox" id="ball-pin"> Fixed Center</label>
+                <button id="btn-spawn-ball">Spawn at Center</button>
+            </div>
+        </details>
+
+        <details>
+            <summary><h2>Spawn Box</h2></summary>
+            <div class="control-group">
+                <label>Width</label> <input type="number" id="box-w" value="100">
+                <label>Height</label> <input type="number" id="box-h" value="50">
+                <label>Part. X</label> <input type="number" id="box-nx" value="5">
+                <label>Mass / Part</label> <input type="number" id="box-mass" value="10">
+                <label>Stiffness</label> <input type="number" id="box-k" value="5000">
+                <label>Damping</label> <input type="number" id="box-d" value="5">
+                <label>Pinning</label>
+                <select id="box-pin">
+                    <option value="none">None</option>
+                    <option value="bottom">Bottom</option>
+                    <option value="left">Left Edge</option>
+                </select>
+                <button id="btn-spawn-box">Spawn at Center</button>
+            </div>
+        </details>
+
+        <details open>
+            <summary><h2>State Management</h2></summary>
+            <div class="control-group">
+                <input type="text" id="save-name" placeholder="State Name">
+                <button id="btn-save">Save to LocalStorage</button>
+            </div>
+            <div class="control-group">
+                <select id="load-select">
+                    <option value="">Select State...</option>
+                </select>
+                <button id="btn-load">Load</button>
+            </div>
+            <div class="control-group">
+                <button id="btn-export">Export JSON</button>
+                <button id="btn-import">Import JSON</button>
+            </div>
+        </details>
+
+        <details open>
+            <summary><h2>Live Metrics</h2></summary>
+            <table class="metrics-table" id="energyTable">
+                <thead>
+                    <tr>
+                        <th>Body</th>
+                        <th>Temp</th>
+                        <th>KE_T</th>
+                        <th>KE_R</th>
+                        <th>PE_G</th>
+                        <th>PE_S</th>
+                        <th>E_Int</th>
+                        <th>E_Tot</th>
+                    </tr>
+                </thead>
+                <tbody id="metrics-body">
+                    <!-- Metrics populated via JS -->
+                </tbody>
+            </table>
+        </details>
+    </div>
+
+    <script src="js/physim.js"></script>
+</body>
+</html>
