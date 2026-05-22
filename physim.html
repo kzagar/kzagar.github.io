@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2-D Particle Physics Simulator</title>
+    <link rel="stylesheet" href="css/physim.css">
+</head>
+<body>
+
+<div id="canvas-container">
+    <canvas id="simCanvas"></canvas>
+    <div id="mode-indicator"></div>
+</div>
+
+<div id="sidebar">
+
+    <!-- ===== Ball Parameters ===== -->
+    <details open>
+        <summary><h2>Ball</h2></summary>
+
+        <div class="control-group">
+            <label>Initial Height <span class="val" id="val_ballHeight">400</span> px</label>
+            <input type="range" id="param_ballHeight" min="50" max="600" value="400">
+        </div>
+        <div class="control-group">
+            <label>Radius <span class="val" id="val_ballRadius">40</span> px</label>
+            <input type="range" id="param_ballRadius" min="10" max="120" value="40">
+        </div>
+        <div class="row">
+            <div class="control-group">
+                <label>Mass <span class="val" id="val_ballMass">30</span></label>
+                <input type="range" id="param_ballMass" min="5" max="200" value="30">
+            </div>
+            <div class="control-group">
+                <label>Layers <span class="val" id="val_ballLayers">2</span></label>
+                <input type="range" id="param_ballLayers" min="0" max="5" step="1" value="2">
+            </div>
+        </div>
+        <div class="row">
+            <div class="control-group">
+                <label>Rotation <span class="val" id="val_ballRot">5</span> rad/s</label>
+                <input type="range" id="param_ballRot" min="0" max="20" step="0.5" value="5">
+            </div>
+            <div class="control-group">
+                <label>Vert. Vel. <span class="val" id="val_ballVy">0</span> px/s</label>
+                <input type="range" id="param_ballVy" min="0" max="300" value="0">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Initial Internal Energy <span class="val" id="val_ballIntE">0</span></label>
+            <input type="range" id="param_ballIntE" min="0" max="80" value="0">
+        </div>
+
+        <hr class="sep">
+
+        <div class="control-group">
+            <label>Ball Spring Stiffness <span class="val" id="val_kBall">1500</span></label>
+            <input type="range" id="param_kBall" min="100" max="5000" step="100" value="1500">
+        </div>
+        <div class="control-group">
+            <label class="damping-label">Ball Damping <span class="val" id="val_dBall">0</span></label>
+            <input type="range" id="param_dBall" min="0" max="10" step="0.1" value="0">
+        </div>
+
+        <div class="btn-row">
+            <button id="btnAddBall" class="secondary">Place Ball (click)</button>
+        </div>
+    </details>
+
+    <!-- ===== Box Parameters ===== -->
+    <details>
+        <summary><h2>Box</h2></summary>
+
+        <div class="row">
+            <div class="control-group">
+                <label>Height <span class="val" id="val_boxHeight">30</span> px</label>
+                <input type="range" id="param_boxHeight" min="10" max="200" value="30">
+            </div>
+            <div class="control-group">
+                <label>Columns <span class="val" id="val_boxCols">15</span></label>
+                <input type="range" id="param_boxCols" min="3" max="40" step="1" value="15">
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Mass <span class="val" id="val_boxMass">150</span></label>
+            <input type="range" id="param_boxMass" min="10" max="500" value="150">
+        </div>
+        <label class="checkbox-label">
+            <input type="checkbox" id="param_boxFixed" checked> Fix bottom row (floor)
+        </label>
+
+        <div class="btn-row">
+            <button id="btnAddBox" class="secondary">Place Box (2 clicks)</button>
+        </div>
+    </details>
+
+    <!-- ===== Floor Springs ===== -->
+    <details>
+        <summary><h2>Floor Springs</h2></summary>
+        <div class="control-group">
+            <label>Stiffness <span class="val" id="val_kFloor">3000</span></label>
+            <input type="range" id="param_kFloor" min="500" max="8000" step="100" value="3000">
+        </div>
+        <div class="control-group">
+            <label class="damping-label">Damping <span class="val" id="val_dFloor">0</span></label>
+            <input type="range" id="param_dFloor" min="0" max="10" step="0.1" value="0">
+        </div>
+    </details>
+
+    <!-- ===== Physics ===== -->
+    <details>
+        <summary><h2>Physics</h2></summary>
+        <div class="control-group">
+            <label>Gravity <span class="val" id="val_gravity">196</span></label>
+            <input type="range" id="param_gravity" min="0" max="600" value="196">
+        </div>
+        <div class="control-group">
+            <label>Collision Stiffness <span class="val" id="val_collisionK">15000</span></label>
+            <input type="range" id="param_collisionK" min="1000" max="50000" step="1000" value="15000">
+        </div>
+        <div class="control-group">
+            <label>Sub-steps <span class="val" id="val_subSteps">20</span></label>
+            <input type="range" id="param_subSteps" min="4" max="60" step="2" value="20">
+        </div>
+    </details>
+
+    <!-- ===== Simulation Controls ===== -->
+    <details open>
+        <summary><h2>Simulation</h2></summary>
+
+        <div class="btn-row">
+            <button id="btnReset">Restart</button>
+            <button id="btnPause" class="secondary">Pause</button>
+            <button id="btnClearAll" class="danger small">Clear All</button>
+        </div>
+
+        <ul class="body-list" id="bodyList"></ul>
+    </details>
+
+    <!-- ===== Energy Table ===== -->
+    <details open>
+        <summary><h2>Live Energies</h2></summary>
+        <table class="metrics-table" id="energyTable">
+            <thead></thead>
+            <tbody></tbody>
+        </table>
+        <p class="note">
+            With damping at 0, collisions and springs perfectly conserve energy.
+            Contact PE accounts for the temporary energy stored during collision overlaps.
+        </p>
+    </details>
+
+</div>
+
+<script src="js/physim.js"></script>
+</body>
+</html>
