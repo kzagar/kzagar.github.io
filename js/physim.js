@@ -356,6 +356,7 @@ function resolveCollisions() {
             const minDist = p1.radius + p2.radius;
 
             if (dist < minDist) {
+                if (dist === 0) continue;
                 // Collision normal
                 const nx = dx / dist;
                 const nz = dz / dist;
