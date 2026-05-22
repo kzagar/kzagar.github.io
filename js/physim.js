@@ -671,8 +671,8 @@ canvas.addEventListener('mousemove', (e) => {
     if (mode === 'none') return;
 
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX = (e.clientX - rect.left) * (canvas.width / rect.width);
+    const mouseY = (e.clientY - rect.top) * (canvas.height / rect.height);
     const worldPos = canvasToWorld(mouseX, mouseY);
 
     const brushRadius = 50;
