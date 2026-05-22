@@ -280,7 +280,7 @@ function createBox(x1, z1, x2, z2, height, massPerParticle, numX, stiffness, dam
     const ux = -nz; // height direction (perpendicular to width)
     const uz = nx;
 
-    const spacing = width / (numX - 1);
+    const spacing = numX > 1 ? width / (numX - 1) : width;
     const numZ = Math.max(1, Math.round(height / spacing));
     const grid = [];
 
