@@ -3,9 +3,21 @@
 const canvas = document.getElementById('simCanvas');
 const ctx = canvas.getContext('2d');
 
-let particles = [];
-let springs = [];
-let bodies = [];
+window.particles = [];
+window.springs = [];
+window.bodies = [];
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Physics parameters
 let gravity = { x: 0, z: -196 }; // z is up, so gravity is negative
@@ -521,14 +533,20 @@ function draw() {
 }
 
 let lastTime = 0;
+let isPaused = false;
+
 function loop(timestamp) {
     let dt = (timestamp - lastTime) / 1000;
     if (dt > 0.05) dt = 0.05;
     lastTime = timestamp;
 
-    updatePhysics(dt);
+    if (!isPaused) {
+        updatePhysics(dt);
+    }
     draw();
-    updateMetrics();
+    if (!isPaused) {
+        updateMetrics();
+    }
 
     requestAnimationFrame(loop);
 }
@@ -576,9 +594,9 @@ function saveState(name) {
 }
 
 function loadState(stateObj) {
-    particles = [];
-    springs = [];
-    bodies = [];
+    particles = window.particles = [];
+    springs = window.springs = [];
+    bodies = window.bodies = [];
 
     stateObj.bodies.forEach(bData => {
         const body = new Body(bData.name, bData.color);
@@ -696,10 +714,15 @@ document.getElementById('btn-spawn-box').addEventListener('click', () => {
     createBox(x1, z1, x1 + w, z1, h, mass, nx, k, d, pin);
 });
 
+document.getElementById('btn-pause').addEventListener('click', () => {
+    isPaused = !isPaused;
+    document.getElementById('btn-pause').innerText = isPaused ? 'Resume' : 'Pause';
+});
+
 document.getElementById('btn-reset').addEventListener('click', () => {
-    particles = [];
-    springs = [];
-    bodies = [];
+    particles = window.particles = [];
+    springs = window.springs = [];
+    bodies = window.bodies = [];
 });
 
 document.getElementById('sidebar-toggle').addEventListener('click', () => {
@@ -818,3 +841,4 @@ function init() {
         loop(ts);
     });
 }
+

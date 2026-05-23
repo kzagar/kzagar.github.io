@@ -108,6 +108,32 @@ canvas {
     opacity: 1;
 }
 
+.floating-btn {
+    position: fixed;
+    top: 10px;
+    right: 60px;
+    z-index: 20;
+    width: 100px;
+    height: 40px;
+    padding: 0;
+    margin: 0;
+    background-color: var(--accent);
+    color: #282a36;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+}
+
+.floating-btn:hover {
+    opacity: 1;
+}
+
 details {
     background-color: #383a47;
     padding: 15px;
