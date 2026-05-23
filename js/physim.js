@@ -842,4 +842,3 @@ function init() {
     });
 }
 
-}
