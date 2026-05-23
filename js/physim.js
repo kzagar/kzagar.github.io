@@ -453,6 +453,7 @@ function resolveCollisions() {
 
         }
     }
+}
 
     for (let i = 0; i < particles.length; i++) {
         const p1 = particles[i];
@@ -507,8 +508,10 @@ function updatePhysics(dt) {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    const scale = canvas.width / 800;
+
     // Draw springs
-    ctx.lineWidth = 1;
+    ctx.lineWidth = Math.max(1, scale * 1);
     springs.forEach(s => {
         if (s.isTorn) return;
         const p1c = worldToCanvas(s.p1.x, s.p1.z);
@@ -525,9 +528,10 @@ function draw() {
         const pc = worldToCanvas(p.x, p.z);
         ctx.fillStyle = p.isFixed ? '#ff5555' : '#f1fa8c';
         ctx.beginPath();
-        ctx.arc(pc.x, pc.y, p.radius, 0, Math.PI * 2);
+        ctx.arc(pc.x, pc.y, p.radius * scale, 0, Math.PI * 2);
         ctx.fill();
         ctx.strokeStyle = '#121216';
+        ctx.lineWidth = Math.max(1, scale * 1);
         ctx.stroke();
     });
 }
@@ -554,23 +558,64 @@ function loop(timestamp) {
 function updateMetrics() {
     const tbody = document.getElementById('metrics-body');
     tbody.innerHTML = '';
+    
+    let total_ke_trans = 0;
+    let total_ke_rot = 0;
+    let total_pe_grav = 0;
+    let total_pe_spring = 0;
+    let total_internal = 0;
+    let total_etot = 0;
+    let total_thermal_ke = 0;
+    let total_particles_count = 0;
+    let activeBodiesCount = 0;
+
     bodies.forEach(b => {
         const m = b.getMetrics();
         if (!m) return;
+        
         const row = document.createElement('tr');
         const etot = m.ke_trans + m.ke_rot + m.pe_grav + m.internal_energy;
         row.innerHTML = `
             <td>${b.name}</td>
             <td>${m.temp.toFixed(1)}</td>
-            <td>${m.ke_trans.toFixed(0)}</td>
-            <td>${m.ke_rot.toFixed(0)}</td>
-            <td>${m.pe_grav.toFixed(0)}</td>
-            <td>${m.pe_spring.toFixed(0)}</td>
-            <td>${m.internal_energy.toFixed(0)}</td>
-            <td>${etot.toFixed(0)}</td>
+            <td>${m.ke_trans.toExponential(2)}</td>
+            <td>${m.ke_rot.toExponential(2)}</td>
+            <td>${m.pe_grav.toExponential(2)}</td>
+            <td>${m.pe_spring.toExponential(2)}</td>
+            <td>${m.internal_energy.toExponential(2)}</td>
+            <td>${etot.toExponential(2)}</td>
         `;
         tbody.appendChild(row);
+        
+        total_ke_trans += m.ke_trans;
+        total_ke_rot += m.ke_rot;
+        total_pe_grav += m.pe_grav;
+        total_pe_spring += m.pe_spring;
+        total_internal += m.internal_energy;
+        total_etot += etot;
+        total_thermal_ke += m.thermal_ke;
+        total_particles_count += b.particles.length;
+        activeBodiesCount++;
     });
+
+    if (activeBodiesCount > 0) {
+        const system_temp = total_particles_count > 0 ? total_thermal_ke / total_particles_count : 0;
+        const row = document.createElement('tr');
+        row.style.fontWeight = 'bold';
+        row.style.borderTop = '2px solid var(--accent)';
+        row.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+        row.innerHTML = `
+            <td>Total</td>
+            <td>${system_temp.toFixed(1)}</td>
+            <td>${total_ke_trans.toExponential(2)}</td>
+            <td>${total_ke_rot.toExponential(2)}</td>
+            <td>${total_pe_grav.toExponential(2)}</td>
+            <td>${total_pe_spring.toExponential(2)}</td>
+            <td>${total_internal.toExponential(2)}</td>
+            <td>${total_etot.toExponential(2)}</td>
+        `;
+        tbody.appendChild(row);
+    }
 }
 
 function saveState(name) {
@@ -728,7 +773,18 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 document.getElementById('sidebar-toggle').addEventListener('click', () => {
     const sidebar = document.getElementById('sidebar');
     sidebar.classList.toggle('collapsed');
-    resizeCanvas();
+    
+    // Smoothly animate the canvas resize during the 300ms transition
+    let startTime = null;
+    function animateResize(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = timestamp - startTime;
+        resizeCanvas();
+        if (progress < 350) {
+            requestAnimationFrame(animateResize);
+        }
+    }
+    requestAnimationFrame(animateResize);
 });
 
 // Heating/Cooling brush
@@ -825,8 +881,30 @@ function preloadExample() {
 
 function resizeCanvas() {
     const container = document.getElementById('canvas-container');
-    canvas.width = container.clientWidth;
-    canvas.height = container.clientHeight;
+    if (!container) return;
+
+    const style = window.getComputedStyle(container);
+    const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+
+    const availableWidth = Math.max(0, container.clientWidth - paddingX);
+    const availableHeight = Math.max(0, container.clientHeight - paddingY);
+
+    const targetAspect = 800 / 600; // 4:3 aspect ratio
+
+    let width = availableWidth;
+    let height = availableWidth / targetAspect;
+
+    if (height > availableHeight) {
+        height = availableHeight;
+        width = height * targetAspect;
+    }
+
+    canvas.width = Math.floor(width);
+    canvas.height = Math.floor(height);
+
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
 }
 
 window.addEventListener('resize', resizeCanvas);
@@ -836,6 +914,13 @@ init();
 function init() {
     resizeCanvas();
     preloadExample();
+    
+    // Add transitionend listener to sidebar to guarantee correct final canvas size
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.addEventListener('transitionend', resizeCanvas);
+    }
+    
     requestAnimationFrame((ts) => {
         lastTime = ts;
         loop(ts);

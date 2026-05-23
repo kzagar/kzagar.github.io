@@ -16,6 +16,7 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
+    overflow: hidden; /* Prevent global scrollbars */
 }
 
 @media (min-width: 768px) {
@@ -30,9 +31,12 @@ body {
     position: relative;
     overflow: hidden;
     padding: 10px;
+    min-width: 0;  /* Allow flex item to shrink below content size */
+    min-height: 0; /* Allow flex item to shrink below content size */
 }
 
 canvas {
+    display: block;
     background-color: #121216;
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
     border-radius: 4px;
