@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator imen za dojenčke</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .babynames-page .subtitle {
+            text-align: center;
+            color: #606770;
+            margin-top: -10px;
+            margin-bottom: 20px;
+        }
+        .babynames-page .controls {
+            margin-bottom: 20px;
+        }
+        .babynames-page .controls label {
+            margin-top: 10px;
+        }
+        .babynames-page .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        .babynames-page .slider-container input[type="range"] {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .babynames-page .slider-container .value {
+            font-weight: 600;
+            color: #4b4f56;
+            min-width: 25px;
+            text-align: right;
+        }
+        .babynames-page .checkbox-group {
+            margin-bottom: 18px;
+        }
+        .babynames-page .checkbox-group label {
+            display: inline-block;
+            margin-right: 15px;
+        }
+        .babynames-page .wheel-section {
+            display: flex;
+            justify-content: center;
+            margin: 25px 0;
+        }
+        .babynames-page .wheel-wrapper {
+            position: relative;
+            width: 320px;
+            height: 320px;
+        }
+        .babynames-page .wheel-pointer {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 24px solid #d9534f;
+            z-index: 2;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.3));
+        }
+        .babynames-page #wheelCanvas {
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 0 6px #fff, 0 0 0 8px #dddfe2, 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .babynames-page .result-container {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #dddfe2;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .babynames-page .result-container h2 {
+            margin-top: 0;
+            color: #1c1e21;
+        }
+        .babynames-page .proposed-name {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #4b4f56;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body class="babynames-page">
+    <div class="container">
+        <h1>Generator imen za dojenčke</h1>
+        <p class="subtitle">Izbiro imena prepustite usodi! Določite značilnosti imena, zavrtite kolo sreče in dobite ime, ki bo za vašemu malčku služilo za vse življenje (ali pa tudi ne).</p>
+
+        <div class="controls">
+            <!-- Name Length Slider -->
+            <label for="nameLength">Dolžina imena:</label>
+            <div class="slider-container">
+                <input type="range" id="nameLength" name="nameLength" min="3" max="12" value="6">
+                <span id="lengthValue" class="value">6</span>
+            </div>
+
+            <!-- Character Sets Checkboxes -->
+            <label>Znaki, ki naj bodo del imena:</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="includeBasicLetters" checked> Osnovne črke (a-ž)</label>
+                <label><input type="checkbox" id="includeSlovenian" checked> Slovenske posebne črke (čšž)</label>
+                <label><input type="checkbox" id="includeAccented"> Razširjeni nabor (evropske naglašene črke, npr. äöüé)</label>
+                <label><input type="checkbox" id="includeChinese"> Kitajski znaki (漢字)</label>
+            </div>
+
+            <button id="spinBtn">Predlagaj ime!</button>
+        </div>
+
+        <div class="wheel-section">
+            <div class="wheel-wrapper">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="320" height="320"></canvas>
+            </div>
+        </div>
+
+        <div id="resultContainer" class="result-container hidden">
+            <h2>Vaše novo ime je:</h2>
+            <div id="proposedName" class="proposed-name"></div>
+        </div>
+    </div>
+
+    <script src="js/babynames.js"></script>
+</body>
+</html>
