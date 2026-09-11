@@ -1010,6 +1010,9 @@ button.clear-search-btn.hidden {
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
+    cursor: pointer;
+    user-select: none;
+    touch-action: manipulation;
 }
 
 @media (min-width: 640px) {

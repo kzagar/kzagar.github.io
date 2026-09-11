@@ -169,8 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         releaseWakeLock();
     }
 
-    modalCloseBtn.addEventListener('click', closeModal);
-    modalBackdrop.addEventListener('click', closeModal);
+    cardModal.addEventListener('click', closeModal);
     window.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !cardModal.classList.contains('hidden')) {
             closeModal();
