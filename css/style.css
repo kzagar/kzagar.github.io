@@ -747,3 +747,402 @@ body.index-page {
     margin-top: 25px;
 }
 
+/* Loyalty Cards Page Specific Styles */
+body.cards-page {
+    background-color: #f8fafc;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.cards-container {
+    background-color: #ffffff;
+    padding: 20px 16px env(safe-area-inset-bottom, 20px);
+    width: 100%;
+    max-width: 640px;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 640px) {
+    body.cards-page {
+        padding: 24px 16px;
+    }
+    .cards-container {
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        min-height: auto;
+        padding: 28px 24px;
+    }
+}
+
+.cards-header {
+    margin-bottom: 16px;
+    text-align: center;
+    padding-top: env(safe-area-inset-top, 0px);
+}
+
+.cards-header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+}
+
+.cards-subtitle {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.cards-search-box {
+    position: relative;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+}
+
+.cards-search-box .search-icon {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
+.cards-search-box input[type="search"] {
+    width: 100%;
+    padding: 14px 40px 14px 42px;
+    font-size: 16px; /* 16px prevents automatic zoom on iOS Safari */
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    background-color: #f1f5f9;
+    color: #0f172a;
+    -webkit-appearance: none;
+}
+
+.cards-search-box input[type="search"]:focus {
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+.cards-search-box input[type="search"]::-webkit-search-decoration,
+.cards-search-box input[type="search"]::-webkit-search-cancel-button {
+    display: none;
+}
+
+button.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: #cbd5e1;
+    border: none;
+    border-radius: 50%;
+    color: #334155;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+button.clear-search-btn:hover {
+    background: #94a3b8;
+    color: #0f172a;
+}
+
+button.clear-search-btn.hidden {
+    display: none;
+}
+
+.cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.card-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background-color: #ffffff;
+    border: 1.5px solid #f1f5f9;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    user-select: none;
+    touch-action: manipulation;
+    min-height: 48px;
+}
+
+.card-list-item:active {
+    background-color: #f1f5f9;
+    transform: scale(0.99);
+}
+
+@media (hover: hover) {
+    .card-list-item:hover {
+        border-color: #93c5fd;
+        background-color: #f8fafc;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
+    }
+}
+
+.card-item-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: hidden;
+    padding-right: 10px;
+}
+
+.card-item-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-item-value {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 0.85rem;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-item-type {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background-color: #f1f5f9;
+    color: #475569;
+    flex-shrink: 0;
+}
+
+.cards-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: #94a3b8;
+    font-size: 1rem;
+}
+
+.cards-empty.hidden {
+    display: none;
+}
+
+/* Card Barcode Modal - Fullscreen on mobile */
+.card-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.card-modal.hidden {
+    display: none !important;
+}
+
+.card-modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+}
+
+@media (min-width: 640px) {
+    .card-modal {
+        padding: 20px;
+    }
+    .card-modal-backdrop {
+        background-color: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+}
+
+.card-modal-content {
+    position: relative;
+    background: #ffffff;
+    padding: calc(env(safe-area-inset-top, 16px) + 20px) 16px calc(env(safe-area-inset-bottom, 16px) + 20px);
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    box-shadow: none;
+    border-radius: 0;
+    text-align: center;
+    z-index: 10001;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@media (min-width: 640px) {
+    .card-modal-content {
+        height: auto;
+        max-height: 90vh;
+        max-width: 520px;
+        padding: 36px 28px 30px;
+        border-radius: 24px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+        animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        display: block;
+    }
+}
+
+@keyframes modalScaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+button.modal-close-btn {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 10px) + 12px);
+    right: 16px;
+    background: #f1f5f9;
+    border: none;
+    font-size: 1.8rem;
+    color: #475569;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    line-height: 1;
+    transition: all 0.2s ease;
+    touch-action: manipulation;
+    z-index: 10002;
+}
+
+button.modal-close-btn:active,
+button.modal-close-btn:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+.modal-header {
+    width: 100%;
+    padding-top: 10px;
+}
+
+.modal-header h2 {
+    margin: 0 0 6px 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    padding: 0 48px;
+    word-break: break-word;
+}
+
+.modal-type-badge {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 12px;
+    border-radius: 6px;
+    background-color: #eff6ff;
+    color: #2563eb;
+    margin-bottom: 8px;
+}
+
+.code-display-area {
+    margin: auto 0;
+    padding: 20px 8px;
+    background: #ffffff;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    flex-grow: 1;
+}
+
+.code-display-area canvas {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 45vh;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.qrcode-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.qrcode-container svg {
+    width: 100%;
+    max-width: min(80vw, 320px);
+    height: auto;
+    max-height: 45vh;
+    display: block;
+}
+
+.modal-footer {
+    width: 100%;
+    padding-bottom: 10px;
+}
+
+.modal-value-text {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 1.5px;
+    margin: 8px 0 0 0;
+    word-break: break-all;
+    user-select: all;
+}
+
+
