@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.innerHTML = `
                 <div class="card-item-left">
                     <span class="card-item-name">${escapeHtml(card.name)}</span>
-                    <span class="card-item-value">${escapeHtml(card.value)}</span>
+                    <span class="card-item-value">${escapeHtml(formatCardValue(card.value))}</span>
                 </div>
             `;
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showCard(card) {
         modalTitle.textContent = card.name;
-        modalValue.textContent = card.value;
+        modalValue.textContent = formatCardValue(card.value);
 
         // Reset display
         barcodeCanvas.style.display = 'none';
@@ -197,6 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial render
     renderList();
 });
+
+function formatCardValue(val) {
+    if (!val) return '';
+    // Group characters into chunks of 3 from left to right (e.g., '701 220 005 444 948 031')
+    return val.match(/.{1,3}/g)?.join(' ') || val;
+}
 
 function escapeHtml(str) {
     return str
