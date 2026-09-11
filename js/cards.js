@@ -18,7 +18,7 @@ const CARDS_DATA = [
     { name: "Ochsner Sport Club", type: "QR", value: "110020083827475" },
     { name: "PADI AOWD", type: "CODE128", value: "99092694" },
     { name: "PADI OWD", type: "CODE128", value: "99089022" },
-    { name: "Petros", type: "EAN13", value: "3000025816638" },
+    { name: "Petrol", type: "EAN13", value: "3000025816638" },
     { name: "S.Oliver (Irena)", type: "CODE128", value: "943918" },
     { name: "Spar (Klemen CH)", type: "EAN13", value: "2096002528534" },
     { name: "Spar (Saša)", type: "CODE128", value: "2625451215306121" },
@@ -56,15 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (wakeLock !== null) {
             wakeLock.release().then(() => {
                 wakeLock = null;
-            }).catch(() => {});
+            }).catch(() => { });
         }
     }
 
     function renderList(query = '') {
         const normalizedQuery = query.trim().toLowerCase();
         cardsList.innerHTML = '';
-        
-        const filtered = CARDS_DATA.filter(c => 
+
+        const filtered = CARDS_DATA.filter(c =>
             c.name.toLowerCase().includes(normalizedQuery) ||
             c.value.toLowerCase().includes(normalizedQuery) ||
             c.type.toLowerCase().includes(normalizedQuery)
