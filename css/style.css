@@ -804,10 +804,20 @@ body.cards-page {
 }
 
 .cards-search-box {
-    position: relative;
-    margin-bottom: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #ffffff;
+    padding: 10px 0 14px 0;
+    margin-bottom: 8px;
     display: flex;
     align-items: center;
+}
+
+@supports (top: env(safe-area-inset-top)) {
+    .cards-search-box {
+        top: env(safe-area-inset-top, 0px);
+    }
 }
 
 .cards-search-box .search-icon {
@@ -815,6 +825,7 @@ body.cards-page {
     left: 14px;
     color: #94a3b8;
     pointer-events: none;
+    z-index: 101;
 }
 
 .cards-search-box input[type="search"] {
