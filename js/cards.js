@@ -1,10 +1,16 @@
 const CARDS_DATA = [
+    { name: "1plus", type: "EAN13", value: "0460030646102" },
     { name: "Arena", type: "QR", value: "M8045501953" },
     { name: "Biotopic", type: "CODE128", value: "92109" },
+    { name: "BTC City Club", type: "CODE128", value: "00226486" },
     { name: "C&A (Klemen)", type: "CODE128", value: "701220005444948031" },
+    { name: "CCC Klub", type: "EAN13", value: "2926000917880" },
     { name: "Ciciban", type: "CODE128", value: "083053" },
+    { name: "Comklub", type: "CODE128", value: "7700041813" },
     { name: "Coop", type: "EAN13", value: "2501067822065" },
+    { name: "FlexKom", type: "QR", value: "7777000100269598" },
     { name: "Flying Blue", type: "QR", value: "2121971971" },
+    { name: "Holland & Barrett", type: "EAN13", value: "2910186391039" },
     { name: "IKEA", type: "QR", value: "6275980261157593314" },
     { name: "Intersport", type: "CODE128", value: "221511824202441986" },
     { name: "Lego", type: "CODE128", value: "000808357" },
@@ -16,19 +22,25 @@ const CARDS_DATA = [
     { name: "Miles & More (Swiss)", type: "ITF", value: "0992007221625143" },
     { name: "Miles & More (Urša)", type: "ITF", value: "0992001795131224" },
     { name: "Mr. Pet", type: "CODE128", value: "MR5383076" },
+    { name: "Obaïbi / Okaïdi", type: "EAN13", value: "8020000516341" },
     { name: "Ochsner Shoes", type: "CODE128", value: "110020083424001" },
     { name: "Ochsner Sport Club", type: "QR", value: "110020083827475" },
+    { name: "Okna Šemrl", type: "QR", value: "https://www.oknasemrl.eu/katalog-12670/" },
+    { name: "Orsay Club", type: "CODE128", value: "000000009500215955" },
     { name: "PADI AOWD", type: "CODE128", value: "99092694" },
     { name: "PADI OWD", type: "CODE128", value: "99089022" },
     { name: "Petrol", type: "EAN13", value: "3000025816638" },
+    { name: "Relax Turizem (Urša)", type: "EAN13", value: "0114005413779" },
     { name: "S.Oliver (Irena)", type: "CODE128", value: "943918" },
     { name: "s.Oliver (Urša)", type: "CODE128", value: "9237453" },
     { name: "Sanolabor", type: "CODE128", value: "2000010959914" },
+    { name: "Sanolabor 2", type: "EAN13", value: "2000007806399" },
     { name: "Spar (Klemen CH)", type: "EAN13", value: "2096002528534" },
     { name: "Spar (Saša)", type: "CODE128", value: "2625451215306121" },
     { name: "Spar (Urša)", type: "CODE128", value: "2625223690151295" },
     { name: "The Nutrition", type: "CODE39", value: "0506333" },
-    { name: "Transa", type: "CODE128", value: "K173135890" }
+    { name: "Transa", type: "CODE128", value: "K173135890" },
+    { name: "Walder", type: "CODE128", value: "000341280" }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -88,11 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
             item.innerHTML = `
                 <div class="card-item-left">
                     <span class="card-item-name">${escapeHtml(card.name)}</span>
-                    <span class="card-item-value">${escapeHtml(formatCardValue(card.value))}</span>
+                    <span class="card-item-value">${renderCardValueHtml(card.value)}</span>
                 </div>
             `;
 
-            item.addEventListener('click', () => showCard(card));
+            item.addEventListener('click', (e) => {
+                if (e.target.closest('a')) return;
+                showCard(card);
+            });
             item.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
@@ -106,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showCard(card) {
         modalTitle.textContent = card.name;
-        modalValue.textContent = formatCardValue(card.value);
+        modalValue.innerHTML = renderCardValueHtml(card.value);
 
         // Reset display
         barcodeCanvas.style.display = 'none';
@@ -201,10 +216,32 @@ document.addEventListener('DOMContentLoaded', () => {
     renderList();
 });
 
+function isUrl(val) {
+    return typeof val === 'string' && /^https?:\/\//i.test(val.trim());
+}
+
 function formatCardValue(val) {
     if (!val) return '';
-    // Group characters into chunks of 3 from left to right (e.g., '701 220 005 444 948 031')
-    return val.match(/.{1,3}/g)?.join(' ') || val;
+    const trimmed = String(val).trim();
+    if (isUrl(trimmed)) {
+        return trimmed;
+    }
+    // EAN-13 standard representation: 1 digit + 6 digits + 6 digits (e.g. 2 926000 917880)
+    if (/^\d{13}$/.test(trimmed)) {
+        return `${trimmed[0]} ${trimmed.slice(1, 7)} ${trimmed.slice(7, 13)}`;
+    }
+    // Group characters into chunks of 3 from left to right for general card numbers
+    return trimmed.match(/.{1,3}/g)?.join(' ') || trimmed;
+}
+
+function renderCardValueHtml(val) {
+    if (!val) return '';
+    const trimmed = String(val).trim();
+    if (isUrl(trimmed)) {
+        const escaped = escapeHtml(trimmed);
+        return `<a href="${escaped}" target="_blank" rel="noopener noreferrer" class="card-link" onclick="event.stopPropagation()">${escaped}</a>`;
+    }
+    return escapeHtml(formatCardValue(trimmed));
 }
 
 function escapeHtml(str) {

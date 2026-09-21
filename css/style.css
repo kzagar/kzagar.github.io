@@ -1159,4 +1159,15 @@ button.modal-close-btn:hover {
     user-select: all;
 }
 
+.card-link {
+    color: #2563eb;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+}
+
+.card-link:hover {
+    color: #1d4ed8;
+}
+
 
