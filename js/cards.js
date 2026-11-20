@@ -39,6 +39,7 @@ const CARDS_DATA = [
     { name: "Spar (Saša)", type: "CODE128", value: "2625451215306121" },
     { name: "Spar (Urša)", type: "CODE128", value: "2625223690151295" },
     { name: "The Nutrition", type: "CODE39", value: "0506333" },
+    { name: "Thermana Club", type: "QR", value: "2950540585018" },
     { name: "Transa", type: "CODE128", value: "K173135890" },
     { name: "Walder", type: "CODE128", value: "000341280" }
 ];
