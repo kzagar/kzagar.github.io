@@ -1,3 +1,4 @@
+// The list is to be sorted by date.
 const CARDS_DATA = [
     { name: "1plus", type: "EAN13", value: "0460030646102" },
     { name: "Arena", type: "QR", value: "M8045501953" },
