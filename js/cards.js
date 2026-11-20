@@ -40,7 +40,7 @@ const CARDS_DATA = [
     { name: "Spar (Saša)", type: "CODE128", value: "2625451215306121" },
     { name: "Spar (Urša)", type: "CODE128", value: "2625223690151295" },
     { name: "The Nutrition", type: "CODE39", value: "0506333" },
-    { name: "Thermana Club", type: "QR", value: "2950540585018" },
+    { name: "Thermana Club", type: "QR", value: "2950540585018", qrMode: "Numeric", qrErrorCorrection: "L", qrMask: 0 },
     { name: "Transa", type: "CODE128", value: "K173135890" },
     { name: "Walder", type: "CODE128", value: "000341280" }
 ];
@@ -134,9 +134,11 @@ document.addEventListener('DOMContentLoaded', () => {
             qrcodeContainer.style.display = 'flex';
             try {
                 // Generate QR Code with qrcode-generator
-                const qr = qrcode(0, 'M');
-                qr.addData(card.value);
-                qr.make();
+                const errorCorrection = card.qrErrorCorrection || 'M';
+                const mode = card.qrMode || 'Byte';
+                const qr = qrcode(0, errorCorrection);
+                qr.addData(card.value, mode);
+                qr.make(card.qrMask);
                 qrcodeContainer.innerHTML = qr.createSvgTag({
                     scalable: true,
                     margin: 2
